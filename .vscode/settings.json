@@ -50,7 +50,7 @@
   "githubIssues.issueBranchTitle": "issue${issueNumber}/${sanitizedIssueTitle}",
   "sonarlint.connectedMode.project": {
     "connectionId": "toughtechs151",
-    "projectKey": "ToughTechs151_Swerve-Template"
+    "projectKey": "ToughTechs151_Rebuilt2026"
   },
   "java.checkstyle.version": "10.12.1",
   "githubPullRequests.createOnPublishBranch": "never",
@@ -96,7 +96,7 @@
   "roborio.username": "lvuser",
   "roborio.hostname": "roborio-151-frc.local",
   "sonarcloud.orgname": "ToughTechs151",
-  "sonarcloud.projectname": "Swerve-Template",
+  "sonarcloud.projectname": "Rebuilt2026",
   "java.completion.favoriteStaticMembers": [
     "org.assertj.core.api.Assertion.*",
     "org.junit.Assert.*",

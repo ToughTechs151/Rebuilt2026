@@ -150,7 +150,7 @@ tasks.withType(JavaCompile) {
 
 sonarqube {
     properties {
-        property "sonar.projectKey", "ToughTechs151_Swerve-Template"
+        property "sonar.projectKey", "ToughTechs151_Rebuilt2026"
         property "sonar.organization", "toughtechs151"
         property "sonar.java.spotbugs.reportPaths", "${buildDir}/reports/spotbugs/main.xml"
     }
