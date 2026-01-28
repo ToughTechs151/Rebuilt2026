@@ -1,4 +1,4 @@
-# Tough Techs FRC Team 151 Rebvuilt 2026
+# Tough Techs FRC Team 151 Rebuilt 2026
 
 Robot software code for First Robotics Competition 2026 game Rebuilt.
 
