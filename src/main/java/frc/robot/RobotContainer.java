@@ -18,7 +18,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.FuelConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
@@ -45,6 +47,8 @@ public class RobotContainer {
   // Now all the subsystems.
   private final SwerveSubsystem drivebase =
       new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+
+  private final CANFuelSubsystem ballSubsystem = new CANFuelSubsystem();
 
   private final LEDSubsystem led = new LEDSubsystem();
 
@@ -179,6 +183,24 @@ public class RobotContainer {
     // ---------- Operator Controller ----------
     // Define operator commands and button mappings here
 
+    operatorController
+        .leftBumper()
+        .whileTrue(ballSubsystem.runEnd(ballSubsystem::intake, ballSubsystem::stop));
+    // While the right bumper on the operator controller is held, spin up for 1
+    // second, then launch fuel. When the button is released, stop.
+    operatorController
+        .rightBumper()
+        .whileTrue(
+            ballSubsystem
+                .spinUpCommand()
+                .withTimeout(FuelConstants.SPIN_UP_SECONDS)
+                .andThen(ballSubsystem.launchCommand())
+                .finallyDo(ballSubsystem::stop));
+    // While the A button is held on the operator controller, eject fuel back out
+    // the intake
+    operatorController
+        .a()
+        .whileTrue(ballSubsystem.runEnd(ballSubsystem::eject, ballSubsystem::stop));
   }
 
   /**
