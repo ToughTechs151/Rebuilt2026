@@ -418,6 +418,21 @@ public class SwerveSubsystem extends SubsystemBase {
         3.0);
   }
 
+  public Command diagonalDriveCommand(Supplier<ChassisSpeeds> velocity) {
+    return run(
+        () -> {
+          double omegaRadiansPerSecond =
+              swerveDrive.swerveController.headingCalculate(
+                  swerveDrive.getOdometryHeading().getRadians(), Math.toRadians(45));
+          ChassisSpeeds speeds =
+              new ChassisSpeeds(
+                  velocity.get().vxMetersPerSecond,
+                  velocity.get().vyMetersPerSecond,
+                  omegaRadiansPerSecond);
+          swerveDrive.driveFieldOriented(speeds);
+        });
+  }
+
   /**
    * Command to characterize the robot angle motors using SysId.
    *
