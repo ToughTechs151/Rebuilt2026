@@ -4,10 +4,7 @@
 
 package frc.robot;
 
-import java.io.File;
-
 import com.pathplanner.lib.auto.AutoBuilder;
-
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -24,6 +21,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import java.io.File;
 import swervelib.SwerveInputStream;
 
 /**
@@ -87,7 +85,6 @@ public class RobotContainer {
   Command driveRobotOrientedAngularVelocity =
       drivebase.driveFieldOriented(driveRobotOriented).withName("Robot Oriented");
 
-
   // Commands to shift robot position at low speed using POV
   SwerveInputStream shiftForwardRobotOriented =
       SwerveInputStream.of(drivebase.getSwerveDrive(), () -> DriveConstants.POV_SPEED, () -> 0.0)
@@ -128,8 +125,8 @@ public class RobotContainer {
 
   Command shiftLeft = drivebase.driveFieldOriented(shiftLeftRobotOriented).withName("Shift Left");
 
-
-  Command diagonalDrive = drivebase.diagonalDriveCommand(driveAngularVelocity).withName("Diagonal Drive");
+  Command diagonalDrive =
+      drivebase.diagonalDriveCommand(driveAngularVelocity).withName("Diagonal Drive");
 
   private SendableChooser<Command> autoChooser;
 
@@ -170,10 +167,7 @@ public class RobotContainer {
         .leftBumper()
         .whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
 
-    driverController 
-        .rightTrigger()
-        .whileTrue(diagonalDrive);
-
+    driverController.rightTrigger().whileTrue(diagonalDrive);
 
     // Drives the robot slowly to a set position based on which of the pov buttons is pressed on the
     // driver's controller
