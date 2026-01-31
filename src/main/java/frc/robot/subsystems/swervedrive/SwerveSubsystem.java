@@ -82,6 +82,9 @@ public class SwerveSubsystem extends SubsystemBase {
   /** PhotonVision class to keep an accurate odometry. */
   private Vision vision;
 
+  /** Calculates Closest Diamond Angle for Diamond Drive. */
+  private double closestDiamondAngle;
+
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
@@ -416,6 +419,28 @@ public class SwerveSubsystem extends SubsystemBase {
         3.0,
         5.0,
         3.0);
+  }
+
+  /** Diamond Drive for going on the ramp. Finds the closest 45 degree angle. */
+  public Command diagonalDriveCommand(Supplier<ChassisSpeeds> velocity) {
+    return startRun(
+        () -> {
+          double currentDeg = Math.toDegrees(swerveDrive.getOdometryHeading().getRadians());
+          closestDiamondAngle = Math.round(currentDeg + 45.0);
+          closestDiamondAngle = Math.round(closestDiamondAngle / 90.0) * 90.0;
+          closestDiamondAngle = Math.toRadians(closestDiamondAngle - 45.0);
+        },
+        () -> {
+          double omegaRadiansPerSecond =
+              swerveDrive.swerveController.headingCalculate(
+                  swerveDrive.getOdometryHeading().getRadians(), closestDiamondAngle);
+          ChassisSpeeds speeds =
+              new ChassisSpeeds(
+                  velocity.get().vxMetersPerSecond,
+                  velocity.get().vyMetersPerSecond,
+                  omegaRadiansPerSecond);
+          swerveDrive.driveFieldOriented(speeds);
+        });
   }
 
   /**

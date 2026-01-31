@@ -129,6 +129,9 @@ public class RobotContainer {
 
   Command shiftLeft = drivebase.driveFieldOriented(shiftLeftRobotOriented).withName("Shift Left");
 
+  Command diagonalDrive =
+      drivebase.diagonalDriveCommand(driveAngularVelocity).withName("Diagonal Drive");
+
   private SendableChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -167,6 +170,8 @@ public class RobotContainer {
     driverController
         .leftBumper()
         .whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+
+    driverController.rightTrigger().whileTrue(diagonalDrive);
 
     // Drives the robot slowly to a set position based on which of the pov buttons is pressed on the
     // driver's controller
