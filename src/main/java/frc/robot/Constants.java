@@ -136,6 +136,14 @@ public final class Constants {
     public static final Pose2d RED_START_POSE =
         new Pose2d(new Translation2d(Meter.of(13.0), Meter.of(4.0)), Rotation2d.fromDegrees(0));
 
+    // **Pose for red alliance to the hub in meters and degrees. */
+    public static final Pose2d RED_HUB_CENTER =
+        new Pose2d(new Translation2d(11.915, 4.035), new Rotation2d());
+
+    /** Pose for blue alliance to the hub in meters and degrees. */
+    public static final Pose2d BLUE_HUB_CENTER =
+        new Pose2d(new Translation2d(4.626, 4.035), new Rotation2d());
+
     // Constants for drive to pose initial path following
     /**
      * Path constraints for initial pathfinding (max velocity, acceleration, angular velocity,
