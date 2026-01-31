@@ -11,11 +11,13 @@ datalogging
 deadband
 deployhost
 deploytime
+drivebase
 EEPROM
 Feedforward
 Feedforwards
 holonomic
 Holonomic
+intaking
 Intellicode
 jacoco
 javadoc
@@ -37,6 +39,7 @@ sonarcloud
 Sonarlint
 Sonarqube
 Spartronics
+SPINUP
 spotbugs
 statusfile
 swervedrive
