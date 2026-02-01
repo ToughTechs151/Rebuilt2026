@@ -130,7 +130,7 @@ public class RobotContainer {
   Command shiftLeft = drivebase.driveFieldOriented(shiftLeftRobotOriented).withName("Shift Left");
 
   Command diagonalDrive =
-      drivebase.diagonalDriveCommand(driveAngularVelocity).withName("Diagonal Drive");
+      drivebase.diamondDriveCommand(driveAngularVelocity).withName("Diagonal Drive");
 
   Command aimHubDrive =
       drivebase.aimHubDriveCommand(driveAngularVelocity).withName("Aim Hub Drive");
