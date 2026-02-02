@@ -421,8 +421,38 @@ public class SwerveSubsystem extends SubsystemBase {
         3.0);
   }
 
+  /** Command to drive with the launcher aimed at the alliance hub. */
+  public Command aimHubDriveCommand(Supplier<ChassisSpeeds> velocity) {
+    return run(
+        () -> {
+          Pose2d hubTarget =
+              isRedAlliance() ? DriveConstants.RED_HUB_CENTER : DriveConstants.BLUE_HUB_CENTER;
+
+          Rotation2d currentHeading = swerveDrive.getOdometryHeading();
+
+          Translation2d relativeTrl = hubTarget.relativeTo(swerveDrive.getPose()).getTranslation();
+
+          Rotation2d target =
+              new Rotation2d(relativeTrl.getX(), relativeTrl.getY())
+                  .plus(currentHeading)
+                  .plus(Rotation2d.fromDegrees(180));
+
+          double omegaRadiansPerSecond =
+              swerveDrive.swerveController.headingCalculate(
+                  currentHeading.getRadians(), target.getRadians());
+
+          ChassisSpeeds speeds =
+              new ChassisSpeeds(
+                  velocity.get().vxMetersPerSecond,
+                  velocity.get().vyMetersPerSecond,
+                  omegaRadiansPerSecond);
+
+          swerveDrive.driveFieldOriented(speeds);
+        });
+  }
+
   /** Diamond Drive for going on the ramp. Finds the closest 45 degree angle. */
-  public Command diagonalDriveCommand(Supplier<ChassisSpeeds> velocity) {
+  public Command diamondDriveCommand(Supplier<ChassisSpeeds> velocity) {
     return startRun(
         () -> {
           double currentDeg = Math.toDegrees(swerveDrive.getOdometryHeading().getRadians());
