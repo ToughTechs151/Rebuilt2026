@@ -129,8 +129,8 @@ public class RobotContainer {
 
   Command shiftLeft = drivebase.driveFieldOriented(shiftLeftRobotOriented).withName("Shift Left");
 
-  Command diagonalDrive =
-      drivebase.diamondDriveCommand(driveAngularVelocity).withName("Diagonal Drive");
+  Command diamondDrive =
+      drivebase.diamondDriveCommand(driveAngularVelocity).withName("Diamond Drive");
 
   Command aimHubDrive =
       drivebase.aimHubDriveCommand(driveAngularVelocity).withName("Aim Hub Drive");
@@ -174,7 +174,7 @@ public class RobotContainer {
         .leftBumper()
         .whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
     // adjust the robot to the closest 46 degree angle
-    driverController.rightTrigger().whileTrue(diagonalDrive);
+    driverController.rightTrigger().whileTrue(diamondDrive);
     // adjust the robot to face the hub while driving
     driverController.leftTrigger().whileTrue(aimHubDrive);
 

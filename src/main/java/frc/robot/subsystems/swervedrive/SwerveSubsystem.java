@@ -421,7 +421,7 @@ public class SwerveSubsystem extends SubsystemBase {
         3.0);
   }
 
-  // * Hub Centered Drive */
+  /** Command to drive with the launcher aimed at the alliance hub. */
   public Command aimHubDriveCommand(Supplier<ChassisSpeeds> velocity) {
     return run(
         () -> {
