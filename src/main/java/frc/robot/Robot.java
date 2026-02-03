@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.util.FuelSim;
 import frc.sim.RobotModel;
 
 /**
@@ -53,6 +54,9 @@ public class Robot extends TimedRobot {
     disabledTimer = new Timer();
 
     datalog.dataLogRobotContainerInit(this.robotContainer);
+
+    FuelSim.getInstance().spawnStartingFuel();
+    FuelSim.getInstance().start();
   }
 
   /**
@@ -218,6 +222,8 @@ public class Robot extends TimedRobot {
     if (isSimulation() && simModel != null) {
       simModel.update();
     }
+
+    FuelSim.getInstance().updateSim();
   }
 
   /**
