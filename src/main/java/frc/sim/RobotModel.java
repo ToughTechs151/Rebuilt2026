@@ -21,6 +21,7 @@ public class RobotModel {
   PDPSim simpdp;
 
   // Define subsystem simulation objects
+  FuelSubsystemSim fuelModel;
 
   Random random = new Random(); // NOSONAR(java:S2245)
 
@@ -48,6 +49,8 @@ public class RobotModel {
     // Initialize subsystem simulations
 
     simpdp = new PDPSim(robot.getRobotContainer().getPdp());
+    fuelModel = new FuelSubsystemSim(robot.getRobotContainer().getBallSubsystem());
+
     reset();
   }
 
@@ -58,6 +61,7 @@ public class RobotModel {
     }
 
     // Update subsystem simulations
+    fuelModel.updateSim();
 
     // Simulate battery voltage drop based on total simulated current
     // Get current draws from subsystems

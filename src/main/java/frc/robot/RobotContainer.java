@@ -142,6 +142,7 @@ public class RobotContainer {
 
     // Publish subsystem data including commands
     SmartDashboard.putData(drivebase);
+    SmartDashboard.putData(ballSubsystem);
 
     drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
 
@@ -273,5 +274,14 @@ public class RobotContainer {
    */
   public PowerDistribution getPdp() {
     return this.pdp;
+  }
+
+  /**
+   * Use this to get the Ball Subsystem.
+   *
+   * @return a reference to the Ball Subsystem
+   */
+  public CANFuelSubsystem getBallSubsystem() {
+    return ballSubsystem;
   }
 }
