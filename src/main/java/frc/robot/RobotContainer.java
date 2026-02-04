@@ -195,9 +195,12 @@ public class RobotContainer {
     // ---------- Operator Controller ----------
     // Define operator commands and button mappings here
 
+    // While the left bumper on operator controller is held, intake Fuel
     operatorController
         .leftBumper()
-        .whileTrue(ballSubsystem.runEnd(ballSubsystem::intake, ballSubsystem::stop));
+        .whileTrue(
+            ballSubsystem.runEnd(ballSubsystem::intake, ballSubsystem::stop).withName("Intake"));
+
     // While the right bumper on the operator controller is held, spin up for 1
     // second, then launch fuel. When the button is released, stop.
     operatorController
@@ -207,12 +210,14 @@ public class RobotContainer {
                 .spinUpCommand()
                 .withTimeout(FuelConstants.SPIN_UP_SECONDS)
                 .andThen(ballSubsystem.launchCommand())
-                .finallyDo(ballSubsystem::stop));
+                .finallyDo(ballSubsystem::stop)
+                .withName("Launch"));
     // While the A button is held on the operator controller, eject fuel back out
     // the intake
     operatorController
         .a()
-        .whileTrue(ballSubsystem.runEnd(ballSubsystem::eject, ballSubsystem::stop));
+        .whileTrue(
+            ballSubsystem.runEnd(ballSubsystem::eject, ballSubsystem::stop).withName("Eject"));
   }
 
   /**

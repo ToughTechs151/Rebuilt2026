@@ -6,6 +6,7 @@ import static frc.robot.Constants.FuelConstants.*;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
@@ -52,7 +53,8 @@ public class FuelSubsystemSim {
 
   private static final int MAX_BALLS = 12;
   private int ballCount = 8;
-  private double launchDelay = TIME_BETWEEN_LAUNCHES;
+  private double launchDelay = 0.0;
+  private double ejectDelay = 0.0;
 
   /**
    * Create a new FuelSubsystemSim.
@@ -100,6 +102,16 @@ public class FuelSubsystemSim {
       launchDelay -= 0.02;
     }
 
+    // Eject fuel with a delay between each ejection
+    if (ejectDelay <= 0.0
+        && fuelSubsystem.getIntakeVelocity() < -1000.0
+        && fuelSubsystem.getFeederVelocity() > 1000.0) {
+      ejectFuel();
+      ejectDelay = TIME_BETWEEN_EJECTS;
+    } else {
+      ejectDelay -= 0.02;
+    }
+
     FuelSim.getInstance().updateSim();
     SmartDashboard.putNumber("Sim Ball Count", ballCount);
   }
@@ -116,27 +128,44 @@ public class FuelSubsystemSim {
     }
   }
 
+  // The following methods are adapted from Hammerheads 5000 2026Rebuilt repository
+  // for use with FuelSim
+
   /** A method to simulate launching a single ball from the hopper. */
   public void launchFuel() {
     if (ballCount == 0) {
       return;
     }
     ballCount--;
-    Pose3d robot = new Pose3d(drivebase.getPose()).transformBy(ROBOT_TO_TURRET_TRANSFORM);
+    Pose3d robot = new Pose3d(drivebase.getPose()).transformBy(ROBOT_TO_LAUNCHER_TRANSFORM);
     Translation3d initialPosition = robot.getTranslation();
     LinearVelocity linearVel =
         MetersPerSecond.of(
             RPM.of(LAUNCH_RATIO * fuelSubsystem.getLauncherVelocity()).in(RadiansPerSecond)
                 * FLYWHEEL_RADIUS.in(Meters));
     Angle angle = Degrees.of(120.0);
-    Translation3d initialVelocity = launchVel(linearVel, angle);
+    Translation3d initialVelocity = exitVel(linearVel, angle, ROBOT_TO_LAUNCHER_TRANSFORM);
     FuelSim.getInstance().spawnFuel(initialPosition, initialVelocity);
   }
 
-  // A method to calculate the 3D launch velocity of the fuel based on the
-  // robot's pose, robot speeds, launch speed, and launch elevation angle
-  private Translation3d launchVel(LinearVelocity vel, Angle angle) {
-    Pose3d robot = new Pose3d(drivebase.getPose()).transformBy(ROBOT_TO_TURRET_TRANSFORM);
+  /** A method to simulate ejecting a single ball from the hopper. */
+  public void ejectFuel() {
+    if (ballCount == 0) {
+      return;
+    }
+    ballCount--;
+    Pose3d robot = new Pose3d(drivebase.getPose()).transformBy(ROBOT_TO_EJECT_TRANSFORM);
+    Translation3d initialPosition = robot.getTranslation();
+    LinearVelocity linearVel = MetersPerSecond.of(1.0);
+    Angle angle = Degrees.of(0.0);
+    Translation3d initialVelocity = exitVel(linearVel, angle, ROBOT_TO_EJECT_TRANSFORM);
+    FuelSim.getInstance().spawnFuel(initialPosition, initialVelocity);
+  }
+
+  // A method to calculate the 3D ball velocity of the fuel based on the
+  // robot's pose, robot speeds, eject/launch speed and elevation angle
+  private Translation3d exitVel(LinearVelocity vel, Angle angle, Transform3d transform) {
+    Pose3d robot = new Pose3d(drivebase.getPose()).transformBy(transform);
     ChassisSpeeds fieldSpeeds = drivebase.getRobotVelocity();
 
     double horizontalVel = Math.cos(angle.in(Radians)) * vel.in(MetersPerSecond);

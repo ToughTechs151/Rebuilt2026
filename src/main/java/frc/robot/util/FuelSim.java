@@ -1,5 +1,8 @@
 package frc.robot.util;
 
+// Fuel simulation for 2026 FRC game "Rebuilt"
+// From Hammerheads 5000 FuelSim
+
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
