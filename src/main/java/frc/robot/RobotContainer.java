@@ -4,12 +4,16 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,12 +21,14 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.Dimensions;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.FuelConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.util.FuelSim;
 import java.io.File;
 import swervelib.SwerveInputStream;
 
@@ -153,6 +159,11 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+
+    // Configure fuel simulation if in simulation mode
+    if (RobotBase.isSimulation()) {
+      configureFuelSim();
+    }
   }
 
   /**
@@ -273,5 +284,33 @@ public class RobotContainer {
    */
   public PowerDistribution getPdp() {
     return this.pdp;
+  }
+
+  private void configureFuelSim() {
+    FuelSim instance = FuelSim.getInstance();
+    instance.spawnStartingFuel();
+    instance.registerRobot(
+        Dimensions.FULL_WIDTH.in(Meters),
+        Dimensions.FULL_LENGTH.in(Meters),
+        Dimensions.BUMPER_HEIGHT.in(Meters),
+        drivebase::getPose,
+        drivebase::getRobotVelocity);
+    instance.registerIntake(
+        Dimensions.FULL_LENGTH.div(2).in(Meters),
+        Dimensions.FULL_LENGTH.div(2).plus(Inches.of(7)).in(Meters),
+        -Dimensions.FULL_WIDTH.div(2).plus(Inches.of(7)).in(Meters),
+        Dimensions.FULL_WIDTH.div(2).minus(Inches.of(7)).in(Meters),
+        ballSubsystem::canIntakeBalls,
+        ballSubsystem::addBallToHopper);
+
+    instance.start();
+    SmartDashboard.putData(
+        Commands.runOnce(
+                () -> {
+                  FuelSim.getInstance().clearFuel();
+                  FuelSim.getInstance().spawnStartingFuel();
+                })
+            .withName("Reset Fuel")
+            .ignoringDisable(true));
   }
 }

@@ -54,9 +54,6 @@ public class Robot extends TimedRobot {
     disabledTimer = new Timer();
 
     datalog.dataLogRobotContainerInit(this.robotContainer);
-
-    FuelSim.getInstance().spawnStartingFuel();
-    FuelSim.getInstance().start();
   }
 
   /**

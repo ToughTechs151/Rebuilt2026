@@ -56,6 +56,9 @@ public class CANFuelSubsystem extends SubsystemBase {
   private double feederGoal = 0.0;
   private double launcherGoal = 0.0;
   private double intakeGoal = 0.0;
+  private boolean intakeRunning = false;
+  private static final int MAX_BALLS = 12;
+  private int ballCount = 0;
 
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
@@ -160,6 +163,18 @@ public class CANFuelSubsystem extends SubsystemBase {
     return this.run(this::launch);
   }
 
+  /** Method to check if the intake can accept more balls. */
+  public boolean canIntakeBalls() {
+    return intakeRunning && ballCount < MAX_BALLS;
+  }
+
+  /** Method to simulate adding a ball to the hopper. */
+  public void addBallToHopper() {
+    if (ballCount < MAX_BALLS) {
+      ballCount++;
+    }
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -169,6 +184,11 @@ public class CANFuelSubsystem extends SubsystemBase {
     feederRoller.setVoltage(feederVoltage);
     launcherRoller.setVoltage(launcherGoal);
     intakeRoller.setVoltage(intakeGoal);
+    if (intakeGoal > 0) {
+      intakeRunning = true;
+    } else if (intakeGoal == 0) {
+      intakeRunning = false;
+    }
 
     // Simulate the roller motors in simulation mode
     if (RobotBase.isSimulation()) {
@@ -204,5 +224,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     SmartDashboard.putNumber(
         "FeederVoltage", feederRoller.getAppliedOutput() * feederRoller.getBusVoltage());
     SmartDashboard.putNumber("FeederVelocity", feederEncoder.getVelocity());
+
+    SmartDashboard.putNumber("Ball Count", ballCount);
   }
 }
