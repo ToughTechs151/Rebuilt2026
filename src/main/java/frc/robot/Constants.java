@@ -249,5 +249,7 @@ public final class Constants {
             new Translation3d(Inches.zero(), Inches.zero(), Inches.of(18)), Rotation3d.kZero);
     public static final Distance FLYWHEEL_RADIUS = Inches.of(2);
     public static final double TIME_BETWEEN_LAUNCHES = 0.5;
+    public static final double LAUNCH_RATIO =
+        0.25; // Ratio of ball exit velocity launcher to wheel edge speed
   }
 }

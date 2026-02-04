@@ -90,6 +90,16 @@ public class FuelSubsystemSim {
     intakeMotorSim.update(0.020);
     intakeSparkSim.iterate(intakeMotorSim.getAngularVelocityRPM(), 12.0, 0.02);
 
+    // Launch fuel with a delay between launches
+    if (launchDelay <= 0.0
+        && fuelSubsystem.getLauncherVelocity() > 1000.0
+        && fuelSubsystem.getFeederVelocity() > 1000.0) {
+      launchFuel();
+      launchDelay = TIME_BETWEEN_LAUNCHES;
+    } else {
+      launchDelay -= 0.02;
+    }
+
     FuelSim.getInstance().updateSim();
     SmartDashboard.putNumber("Sim Ball Count", ballCount);
   }
@@ -116,7 +126,7 @@ public class FuelSubsystemSim {
     Translation3d initialPosition = robot.getTranslation();
     LinearVelocity linearVel =
         MetersPerSecond.of(
-            RPM.of(0.5 * fuelSubsystem.getLauncherVelocity()).in(RadiansPerSecond)
+            RPM.of(LAUNCH_RATIO * fuelSubsystem.getLauncherVelocity()).in(RadiansPerSecond)
                 * FLYWHEEL_RADIUS.in(Meters));
     Angle angle = Degrees.of(120.0);
     Translation3d initialVelocity = launchVel(linearVel, angle);
