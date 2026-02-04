@@ -1,21 +1,34 @@
 package frc.sim;
 
+import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.FuelConstants.*;
 
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.Dimensions;
 import frc.robot.subsystems.CANFuelSubsystem;
+import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.util.FuelSim;
 
 /** Simulate the fuel subsystem DC motors and fuel handling. */
 public class FuelSubsystemSim {
 
   private final CANFuelSubsystem fuelSubsystem;
+  private final SwerveSubsystem drivebase;
+
   private final SparkMaxSim feederSparkSim;
   private final SparkMaxSim launcherSparkSim;
   private final SparkMaxSim intakeSparkSim;
@@ -37,14 +50,20 @@ public class FuelSubsystemSim {
       LinearSystemId.createDCMotorSystem(motorGearbox, INTAKE_MOTOR_MOI_KG_METERS2, 1);
   private final DCMotorSim intakeMotorSim = new DCMotorSim(intakePlant, motorGearbox);
 
+  private static final int MAX_BALLS = 12;
+  private int ballCount = 8;
+  private double launchDelay = TIME_BETWEEN_LAUNCHES;
+
   /**
    * Create a new FuelSubsystemSim.
    *
    * @param fuelSubsystemToSimulate the CANFuelSubsystem to simulate
    */
-  public FuelSubsystemSim(CANFuelSubsystem fuelSubsystemToSimulate) {
+  public FuelSubsystemSim(
+      CANFuelSubsystem fuelSubsystemToSimulate, SwerveSubsystem drivebaseToSimulate) {
 
     fuelSubsystem = fuelSubsystemToSimulate;
+    drivebase = drivebaseToSimulate;
 
     launcherMotor = fuelSubsystem.getLauncherMotor();
     feederMotor = fuelSubsystem.getFeederMotor();
@@ -53,6 +72,8 @@ public class FuelSubsystemSim {
     launcherSparkSim = new SparkMaxSim(launcherMotor, motorGearbox);
     feederSparkSim = new SparkMaxSim(feederMotor, motorGearbox);
     intakeSparkSim = new SparkMaxSim(intakeMotor, motorGearbox);
+
+    configureFuelSim();
   }
 
   /** Update the simulation model. */
@@ -68,5 +89,82 @@ public class FuelSubsystemSim {
     intakeMotorSim.setInput(intakeMotor.getAppliedOutput() * intakeMotor.getBusVoltage());
     intakeMotorSim.update(0.020);
     intakeSparkSim.iterate(intakeMotorSim.getAngularVelocityRPM(), 12.0, 0.02);
+
+    FuelSim.getInstance().updateSim();
+    SmartDashboard.putNumber("Sim Ball Count", ballCount);
+  }
+
+  /** Method to check if the intake can accept more balls. */
+  public boolean canIntakeBalls() {
+    return (fuelSubsystem.getIntakeVelocity() > 100) && (ballCount < MAX_BALLS);
+  }
+
+  /** Method to simulate adding a ball to the hopper. */
+  public void addBallToHopper() {
+    if (ballCount < MAX_BALLS) {
+      ballCount++;
+    }
+  }
+
+  /** A method to simulate launching a single ball from the hopper. */
+  public void launchFuel() {
+    if (ballCount == 0) {
+      return;
+    }
+    ballCount--;
+    Pose3d robot = new Pose3d(drivebase.getPose()).transformBy(ROBOT_TO_TURRET_TRANSFORM);
+    Translation3d initialPosition = robot.getTranslation();
+    LinearVelocity linearVel =
+        MetersPerSecond.of(
+            RPM.of(0.5 * fuelSubsystem.getLauncherVelocity()).in(RadiansPerSecond)
+                * FLYWHEEL_RADIUS.in(Meters));
+    Angle angle = Degrees.of(120.0);
+    Translation3d initialVelocity = launchVel(linearVel, angle);
+    FuelSim.getInstance().spawnFuel(initialPosition, initialVelocity);
+  }
+
+  // A method to calculate the 3D launch velocity of the fuel based on the
+  // robot's pose, robot speeds, launch speed, and launch elevation angle
+  private Translation3d launchVel(LinearVelocity vel, Angle angle) {
+    Pose3d robot = new Pose3d(drivebase.getPose()).transformBy(ROBOT_TO_TURRET_TRANSFORM);
+    ChassisSpeeds fieldSpeeds = drivebase.getRobotVelocity();
+
+    double horizontalVel = Math.cos(angle.in(Radians)) * vel.in(MetersPerSecond);
+    double verticalVel = Math.sin(angle.in(Radians)) * vel.in(MetersPerSecond);
+    double xVel = horizontalVel * Math.cos(robot.getRotation().toRotation2d().getRadians());
+    double yVel = horizontalVel * Math.sin(robot.getRotation().toRotation2d().getRadians());
+
+    xVel += fieldSpeeds.vxMetersPerSecond;
+    yVel += fieldSpeeds.vyMetersPerSecond;
+
+    return new Translation3d(xVel, yVel, verticalVel);
+  }
+
+  private void configureFuelSim() {
+    FuelSim instance = FuelSim.getInstance();
+    instance.spawnStartingFuel();
+    instance.registerRobot(
+        Dimensions.FULL_WIDTH.in(Meters),
+        Dimensions.FULL_LENGTH.in(Meters),
+        Dimensions.BUMPER_HEIGHT.in(Meters),
+        drivebase::getPose,
+        drivebase::getRobotVelocity);
+    instance.registerIntake(
+        Dimensions.FULL_LENGTH.div(2).in(Meters),
+        Dimensions.FULL_LENGTH.div(2).plus(Inches.of(7)).in(Meters),
+        -Dimensions.FULL_WIDTH.div(2).plus(Inches.of(7)).in(Meters),
+        Dimensions.FULL_WIDTH.div(2).minus(Inches.of(7)).in(Meters),
+        this::canIntakeBalls,
+        this::addBallToHopper);
+
+    instance.start();
+    SmartDashboard.putData(
+        Commands.runOnce(
+                () -> {
+                  FuelSim.getInstance().clearFuel();
+                  FuelSim.getInstance().spawnStartingFuel();
+                })
+            .withName("Reset Fuel")
+            .ignoringDisable(true));
   }
 }
