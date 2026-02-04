@@ -15,6 +15,8 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
@@ -235,5 +237,11 @@ public final class Constants {
     public static final double INTAKE_MOTOR_MOI_IN_LBS2 = 1.0;
     public static final double INTAKE_MOTOR_MOI_KG_METERS2 =
         INTAKE_MOTOR_MOI_IN_LBS2 * POUND_IN2_TO_KG_METERS2;
+
+    public static final Transform3d ROBOT_TO_TURRET_TRANSFORM =
+        new Transform3d(
+            new Translation3d(Inches.zero(), Inches.zero(), Inches.of(18)), Rotation3d.kZero);
+    public static final Distance FLYWHEEL_RADIUS = Inches.of(2);
+    public static final double TIME_BETWEEN_LAUNCHES = 0.5;
   }
 }

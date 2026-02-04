@@ -4,6 +4,12 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static frc.robot.Constants.FuelConstants.*;
 
 import com.revrobotics.PersistMode;
@@ -14,18 +20,28 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.FuelSim;
+import java.util.function.Supplier;
 
 public class CANFuelSubsystem extends SubsystemBase {
+  private final Supplier<Pose2d> poseSupplier;
+  private final Supplier<ChassisSpeeds> fieldSpeedsSupplier;
   private final SparkMax feederRoller;
   private final SparkMax launcherRoller;
   private final SparkMax intakeRoller;
@@ -57,11 +73,18 @@ public class CANFuelSubsystem extends SubsystemBase {
   private double launcherGoal = 0.0;
   private double intakeGoal = 0.0;
   private boolean intakeRunning = false;
+
+  // For simulation
   private static final int MAX_BALLS = 12;
-  private int ballCount = 0;
+  private int ballCount = 8;
+  private double launchDelay = TIME_BETWEEN_LAUNCHES;
 
   /** Creates a new CANBallSubsystem. */
-  public CANFuelSubsystem() {
+  public CANFuelSubsystem(
+      Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> fieldSpeedsSupplier) {
+    this.poseSupplier = poseSupplier;
+    this.fieldSpeedsSupplier = fieldSpeedsSupplier;
+
     limiter = new SlewRateLimiter(RATE_LIMIT);
     // create brushed motors for each of the motors on the launcher mechanism
     launcherRoller = new SparkMax(LAUNCHER_MOTOR_ID, MotorType.kBrushless);
@@ -175,6 +198,51 @@ public class CANFuelSubsystem extends SubsystemBase {
     }
   }
 
+  /** A method to simulate launching a single ball from the hopper. */
+  public void launchFuel() {
+    if (ballCount == 0) {
+      return;
+    }
+    ballCount--;
+    Pose3d robot = new Pose3d(poseSupplier.get()).transformBy(ROBOT_TO_TURRET_TRANSFORM);
+    Translation3d initialPosition = robot.getTranslation();
+    LinearVelocity linearVel =
+        MetersPerSecond.of(
+            RPM.of(0.5 * getLauncherVelocity()).in(RadiansPerSecond) * FLYWHEEL_RADIUS.in(Meters));
+    Angle angle = Degrees.of(120.0);
+    Translation3d initialVelocity = launchVel(linearVel, angle);
+    FuelSim.getInstance().spawnFuel(initialPosition, initialVelocity);
+  }
+
+  // A method to calculate the 3D launch velocity of the fuel based on the
+  // robot's pose, robot speeds, launch speed, and launch elevation angle
+  private Translation3d launchVel(LinearVelocity vel, Angle angle) {
+    Pose3d robot = new Pose3d(poseSupplier.get()).transformBy(ROBOT_TO_TURRET_TRANSFORM);
+    ChassisSpeeds fieldSpeeds = fieldSpeedsSupplier.get();
+
+    double horizontalVel = Math.cos(angle.in(Radians)) * vel.in(MetersPerSecond);
+    double verticalVel = Math.sin(angle.in(Radians)) * vel.in(MetersPerSecond);
+    double xVel = horizontalVel * Math.cos(robot.getRotation().toRotation2d().getRadians());
+    double yVel = horizontalVel * Math.sin(robot.getRotation().toRotation2d().getRadians());
+
+    xVel += fieldSpeeds.vxMetersPerSecond;
+    yVel += fieldSpeeds.vyMetersPerSecond;
+
+    return new Translation3d(xVel, yVel, verticalVel);
+  }
+
+  public double getLauncherVelocity() {
+    return launcherEncoder.getVelocity();
+  }
+
+  public double getIntakeVelocity() {
+    return intakeEncoder.getVelocity();
+  }
+
+  public double getFeederVelocity() {
+    return feederEncoder.getVelocity();
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
@@ -203,6 +271,14 @@ public class CANFuelSubsystem extends SubsystemBase {
       intakeMotorSim.setInput(intakeGoal);
       intakeMotorSim.update(0.020);
       intakeSparkSim.iterate(intakeMotorSim.getAngularVelocityRPM(), 12.0, 0.02);
+
+      // Launch fuel with a delay between launches
+      if (launchDelay <= 0.0 && getLauncherVelocity() > 1000.0 && getFeederVelocity() > 1000.0) {
+        launchFuel();
+        launchDelay = TIME_BETWEEN_LAUNCHES;
+      } else {
+        launchDelay -= 0.02;
+      }
     }
 
     // Update SmartDashboard values for monitoring
