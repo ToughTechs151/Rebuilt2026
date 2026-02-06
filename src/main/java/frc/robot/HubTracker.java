@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -215,12 +216,12 @@ public class HubTracker {
       activeTypeName = shift.activeType.name();
       isHubActive = isActive();
 
-      // TERMINAL LOGGING: Only print if the shift has changed
+      // TERMINAL LOGGING: Only log if the shift has changed
       if (shift != lastLoggedShift) {
-        System.out.println("--- HUB TRACKER UPDATE ---");
-        System.out.println("New Shift: " + shiftName);
-        System.out.println("Active Type: " + activeTypeName);
-        System.out.println("Are We Active?: " + isHubActive);
+        DataLogManager.log("--- HUB TRACKER UPDATE ---");
+        DataLogManager.log("New Shift: " + shiftName);
+        DataLogManager.log("Active Type: " + activeTypeName);
+        DataLogManager.log("Are We Active?: " + isHubActive);
         lastLoggedShift = shift;
       }
     } else {
