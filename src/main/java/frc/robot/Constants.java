@@ -5,6 +5,7 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Centimeter;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.InchesPerSecond;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -14,6 +15,8 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
@@ -85,6 +88,16 @@ public final class Constants {
 
     /** Scaling constant applied to turning inputs for smoother control. */
     public static final double TURN_CONSTANT = 6;
+  }
+
+  public static class Dimensions {
+    public static final Distance BUMPER_THICKNESS = Inches.of(3); // frame to edge of bumper
+    public static final Distance BUMPER_HEIGHT = Inches.of(7); // height from floor to top of bumper
+    public static final Distance FRAME_SIZE_Y = Inches.of(26.25); // left to right (y-axis)
+    public static final Distance FRAME_SIZE_X = Inches.of(28.75); // front to back (x-axis)
+
+    public static final Distance FULL_WIDTH = FRAME_SIZE_Y.plus(BUMPER_THICKNESS.times(2));
+    public static final Distance FULL_LENGTH = FRAME_SIZE_X.plus(BUMPER_THICKNESS.times(2));
   }
 
   /** Constants used for the swerve drive subsystem. */
@@ -230,5 +243,17 @@ public final class Constants {
     public static final double INTAKE_MOTOR_MOI_IN_LBS2 = 1.0;
     public static final double INTAKE_MOTOR_MOI_KG_METERS2 =
         INTAKE_MOTOR_MOI_IN_LBS2 * POUND_IN2_TO_KG_METERS2;
+
+    public static final Transform3d ROBOT_TO_LAUNCHER_TRANSFORM =
+        new Transform3d(
+            new Translation3d(Inches.zero(), Inches.zero(), Inches.of(18.0)), Rotation3d.kZero);
+    public static final Transform3d ROBOT_TO_EJECT_TRANSFORM =
+        new Transform3d(
+            new Translation3d(Inches.of(15.0), Inches.zero(), Inches.of(2.0)), Rotation3d.kZero);
+    public static final Distance FLYWHEEL_RADIUS = Inches.of(2);
+    public static final double TIME_BETWEEN_LAUNCHES = 0.5;
+    public static final double TIME_BETWEEN_EJECTS = 0.25;
+    public static final double LAUNCH_RATIO =
+        0.25; // Ratio of ball exit velocity launcher to wheel edge speed
   }
 }

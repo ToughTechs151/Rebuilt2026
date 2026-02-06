@@ -49,7 +49,10 @@ public class RobotModel {
     // Initialize subsystem simulations
 
     simpdp = new PDPSim(robot.getRobotContainer().getPdp());
-    fuelModel = new FuelSubsystemSim(robot.getRobotContainer().getBallSubsystem());
+    fuelModel =
+        new FuelSubsystemSim(
+            robot.getRobotContainer().getBallSubsystem(),
+            robot.getRobotContainer().getDriveSubsystem());
 
     reset();
   }
