@@ -20,6 +20,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
+import frc.robot.util.LUT;
 import swervelib.math.Matter;
 
 /**
@@ -209,6 +210,13 @@ public final class Constants {
     public static final double SPIN_UP_FEEDER_VOLTAGE = -6;
     public static final double SPIN_UP_SECONDS = 1.0;
     public static final double RATE_LIMIT = 999.0; // volts per second
+    public static final LUT LAUNCH_TABLE =
+        new LUT(
+            new double[][] {
+              {2.0, 4800.0},
+              {3.0, 5000.0},
+              {4.0, 5200.0}
+            });
 
     // Constants tunable through TunableNumbers
     public static final double LAUNCHER_SPEED_RPM = 4800.0;

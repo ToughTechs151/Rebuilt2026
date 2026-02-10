@@ -18,6 +18,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.LUT;
 import frc.robot.util.TunableNumber;
 
 public class CANFuelSubsystem extends SubsystemBase {
@@ -33,6 +34,7 @@ public class CANFuelSubsystem extends SubsystemBase {
   private static final String LAUNCHING_FEEDER_ROLLER_KEY = "Launching feeder roller value";
   private static final String LAUNCHING_INTAKE_ROLLER_KEY = "Launching intake roller value";
   private static final String SPINUP_FEEDER_ROLLER_KEY = "Spin-up feeder roller value";
+  private final LUT launchByDistance = LAUNCH_TABLE;
   private SlewRateLimiter limiter;
   private double feederGoal = 0.0;
   private double launcherGoal = 0.0;
@@ -59,6 +61,7 @@ public class CANFuelSubsystem extends SubsystemBase {
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
     limiter = new SlewRateLimiter(RATE_LIMIT);
+
     // create brushed motors for each of the motors on the launcher mechanism
     launcherRoller = new SparkMax(LAUNCHER_MOTOR_ID, MotorType.kBrushless);
     intakeRoller = new SparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless);
@@ -121,7 +124,7 @@ public class CANFuelSubsystem extends SubsystemBase {
 
   // A method to set the rollers to values for launching.
   public void launch() {
-    launcherGoal = launcherRPM.get();
+    launcherGoal = launchByDistance.get(2.5)[1];
     launcherController.setSetpoint(launcherGoal);
     intakeGoal = SmartDashboard.getNumber(LAUNCHING_INTAKE_ROLLER_KEY, LAUNCHING_INTAKE_VOLTAGE);
   }
