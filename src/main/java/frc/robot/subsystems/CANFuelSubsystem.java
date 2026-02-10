@@ -15,13 +15,18 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.LUT;
 import frc.robot.util.TunableNumber;
+import java.util.function.Supplier;
 
 public class CANFuelSubsystem extends SubsystemBase {
+  private final Supplier<Pose2d> poseSupplier;
+  private final Supplier<ChassisSpeeds> fieldSpeedsSupplier;
   private final SparkMax feederRoller;
   private final SparkMax launcherRoller;
   private final SparkMax intakeRoller;
@@ -58,8 +63,12 @@ public class CANFuelSubsystem extends SubsystemBase {
   private SimpleMotorFeedforward feedforward =
       new SimpleMotorFeedforward(staticGain.get(), velocityGain.get(), accelerationGain.get());
 
-  /** Creates a new CANBallSubsystem. */
-  public CANFuelSubsystem() {
+  /** Creates a new CANFuelSubsystem. */
+  public CANFuelSubsystem(
+      Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> fieldSpeedsSupplier) {
+    this.poseSupplier = poseSupplier;
+    this.fieldSpeedsSupplier = fieldSpeedsSupplier;
+
     limiter = new SlewRateLimiter(RATE_LIMIT);
 
     // create brushed motors for each of the motors on the launcher mechanism
@@ -243,5 +252,17 @@ public class CANFuelSubsystem extends SubsystemBase {
   /** Returns the launcher motor for simulation. */
   public SparkMax getLauncherMotor() {
     return launcherRoller;
+  }
+
+  public double getLauncherVelocity() {
+    return launcherEncoder.getVelocity();
+  }
+
+  public double getIntakeVelocity() {
+    return intakeEncoder.getVelocity();
+  }
+
+  public double getFeederVelocity() {
+    return feederEncoder.getVelocity();
   }
 }

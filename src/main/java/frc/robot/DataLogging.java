@@ -102,6 +102,8 @@ public class DataLogging { // NOSONAR(java:S6548)
     SmartDashboard.putBoolean("Robot/Brown Out", RobotController.isBrownedOut());
     SmartDashboard.putBoolean("Robot/Ever Browned Out", this.getEverBrownOut());
     SmartDashboard.putNumber("Robot/PDP Temperature", pdp.getTemperature());
+
+    HubTracker.updateTelemetry();
   }
 
   /** Records the current timestamp for loop timing calculations. */
