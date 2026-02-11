@@ -15,17 +15,14 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.util.TunableNumber;
-import java.util.function.Supplier;
 
 public class CANFuelSubsystem extends SubsystemBase {
-  private final Supplier<Pose2d> poseSupplier;
-  private final Supplier<ChassisSpeeds> fieldSpeedsSupplier;
+  private final SwerveSubsystem drive;
   private final SparkMax feederRoller;
   private final SparkMax launcherRoller;
   private final SparkMax intakeRoller;
@@ -62,10 +59,8 @@ public class CANFuelSubsystem extends SubsystemBase {
       new SimpleMotorFeedforward(staticGain.get(), velocityGain.get(), accelerationGain.get());
 
   /** Creates a new CANFuelSubsystem. */
-  public CANFuelSubsystem(
-      Supplier<Pose2d> poseSupplier, Supplier<ChassisSpeeds> fieldSpeedsSupplier) {
-    this.poseSupplier = poseSupplier;
-    this.fieldSpeedsSupplier = fieldSpeedsSupplier;
+  public CANFuelSubsystem(SwerveSubsystem drive) {
+    this.drive = drive;
 
     limiter = new SlewRateLimiter(RATE_LIMIT);
     // create brushed motors for each of the motors on the launcher mechanism

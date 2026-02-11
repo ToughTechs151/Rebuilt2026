@@ -48,8 +48,7 @@ public class RobotContainer {
   private final SwerveSubsystem drivebase =
       new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
 
-  private final CANFuelSubsystem ballSubsystem =
-      new CANFuelSubsystem(drivebase::getPose, drivebase::getRobotVelocity);
+  private final CANFuelSubsystem ballSubsystem = new CANFuelSubsystem(drivebase);
 
   private final LEDSubsystem led = new LEDSubsystem();
 
