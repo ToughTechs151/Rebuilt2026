@@ -155,7 +155,8 @@ public class HubTracker {
   /**
    * Represents an alliance shift.<br>
    * Values:
-   *   <ul>
+   *
+   * <ul>
    *   <li>{@link Shift#AUTO} (0-20 sec)
    *   <li>{@link Shift#TRANSITION} (20-30 sec)
    *   <li>{@link Shift#SHIFT_1} (30-55 sec)
