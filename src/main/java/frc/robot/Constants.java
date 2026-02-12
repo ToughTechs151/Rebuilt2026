@@ -227,8 +227,8 @@ public final class Constants {
         new LUT(
             new double[][] {
               {2.0, 4800.0},
-              {3.0, 5000.0},
-              {4.0, 5200.0}
+              {4.0, 5000.0},
+              {6.0, 5200.0}
             });
 
     // Constants tunable through TunableNumbers

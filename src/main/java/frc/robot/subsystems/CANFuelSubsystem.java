@@ -15,11 +15,12 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import frc.robot.util.LUT;
 import frc.robot.util.TunableNumber;
 
 public class CANFuelSubsystem extends SubsystemBase {
@@ -36,7 +37,6 @@ public class CANFuelSubsystem extends SubsystemBase {
   private static final String LAUNCHING_FEEDER_ROLLER_KEY = "Launching feeder roller value";
   private static final String LAUNCHING_INTAKE_ROLLER_KEY = "Launching intake roller value";
   private static final String SPINUP_FEEDER_ROLLER_KEY = "Spin-up feeder roller value";
-  private final LUT launchByDistance = LAUNCH_TABLE;
   private SlewRateLimiter limiter;
   private double feederGoal = 0.0;
   private double launcherGoal = 0.0;
@@ -127,8 +127,12 @@ public class CANFuelSubsystem extends SubsystemBase {
   }
 
   // A method to set the rollers to values for launching.
+  // Finds the needed launcher speed based on the distance from the robot to the hub
   public void launch() {
-    launcherGoal = launchByDistance.get(2.5)[1];
+    Pose2d hubPos =
+        drive.isRedAlliance() ? DriveConstants.RED_HUB_CENTER : DriveConstants.BLUE_HUB_CENTER;
+    launcherGoal =
+        LAUNCH_TABLE.get(drive.getPose().getTranslation().getDistance(hubPos.getTranslation()))[1];
     launcherController.setSetpoint(launcherGoal);
     intakeGoal = SmartDashboard.getNumber(LAUNCHING_INTAKE_ROLLER_KEY, LAUNCHING_INTAKE_VOLTAGE);
   }
