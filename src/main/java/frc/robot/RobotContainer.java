@@ -4,7 +4,10 @@
 
 package frc.robot;
 
+import java.io.File;
+
 import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -18,12 +21,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.FuelConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import java.io.File;
 import swervelib.SwerveInputStream;
 
 /**
@@ -197,26 +198,18 @@ public class RobotContainer {
     // While the left bumper on operator controller is held, intake Fuel
     operatorController
         .leftBumper()
-        .whileTrue(
-            ballSubsystem.runEnd(ballSubsystem::intake, ballSubsystem::stop).withName("Intake"));
+        .whileTrue(ballSubsystem.intakeCommand().withName("Intake"));
 
     // While the right bumper on the operator controller is held, spin up for 1
     // second, then launch fuel. When the button is released, stop.
     operatorController
         .rightBumper()
-        .whileTrue(
-            ballSubsystem
-                .spinUpCommand()
-                .withTimeout(FuelConstants.SPIN_UP_SECONDS)
-                .andThen(ballSubsystem.launchCommand())
-                .finallyDo(ballSubsystem::stop)
-                .withName("Launch"));
+        .whileTrue(ballSubsystem.launchCommand().withName("Launch"));
     // While the A button is held on the operator controller, eject fuel back out
     // the intake
     operatorController
         .a()
-        .whileTrue(
-            ballSubsystem.runEnd(ballSubsystem::eject, ballSubsystem::stop).withName("Eject"));
+        .whileTrue(ballSubsystem.ejectCommand().withName("Eject"));
   }
 
   /**
