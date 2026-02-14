@@ -4,7 +4,24 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.FuelConstants.*;
+import static frc.robot.Constants.FuelConstants.FEEDER_MOTOR_CURRENT_LIMIT;
+import static frc.robot.Constants.FuelConstants.FEEDER_MOTOR_ID;
+import static frc.robot.Constants.FuelConstants.INTAKE_MOTOR_CURRENT_LIMIT;
+import static frc.robot.Constants.FuelConstants.INTAKE_MOTOR_ID;
+import static frc.robot.Constants.FuelConstants.INTAKING_FEEDER_VOLTAGE;
+import static frc.robot.Constants.FuelConstants.INTAKING_INTAKE_VOLTAGE;
+import static frc.robot.Constants.FuelConstants.LAUNCHER_KA_VOLTS_PER_RPM2;
+import static frc.robot.Constants.FuelConstants.LAUNCHER_KP_VOLTS_PER_RPM;
+import static frc.robot.Constants.FuelConstants.LAUNCHER_KS_VOLTS;
+import static frc.robot.Constants.FuelConstants.LAUNCHER_KV_VOLTS_PER_RPM;
+import static frc.robot.Constants.FuelConstants.LAUNCHER_MOTOR_CURRENT_LIMIT;
+import static frc.robot.Constants.FuelConstants.LAUNCHER_MOTOR_ID;
+import static frc.robot.Constants.FuelConstants.LAUNCHER_SPEED_RPM;
+import static frc.robot.Constants.FuelConstants.LAUNCHING_FEEDER_VOLTAGE;
+import static frc.robot.Constants.FuelConstants.LAUNCHING_INTAKE_VOLTAGE;
+import static frc.robot.Constants.FuelConstants.LAUNCH_TABLE;
+import static frc.robot.Constants.FuelConstants.RATE_LIMIT;
+import static frc.robot.Constants.FuelConstants.SPIN_UP_FEEDER_VOLTAGE;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
@@ -129,6 +146,8 @@ public class CANFuelSubsystem extends SubsystemBase {
   // A method to set the rollers to values for launching.
   // Finds the needed launcher speed based on the distance from the robot to the hub
   public void launch() {
+    loadPidfTunableNumbers();
+    launcherEnabled = true;
     Pose2d hubPos =
         drive.isRedAlliance() ? DriveConstants.RED_HUB_CENTER : DriveConstants.BLUE_HUB_CENTER;
     launcherGoal =
@@ -146,26 +165,22 @@ public class CANFuelSubsystem extends SubsystemBase {
     intakeGoal = 0.0;
   }
 
-  // A method to spin up the intake and launcher roller while spinning the feeder
-  // roller to keep the balls out of the launcher
-  public void spinUp() {
-    loadPidfTunableNumbers();
-    launcherEnabled = true;
-    launcherGoal = launcherRPM.get();
-    launcherController.setSetpoint(launcherGoal);
-    intakeGoal = SmartDashboard.getNumber(LAUNCHING_INTAKE_ROLLER_KEY, LAUNCHING_INTAKE_VOLTAGE);
-  }
-
-  // A command factory to turn the spinUp method into a command that requires this
-  // subsystem
-  public Command spinUpCommand() {
-    return this.run(this::spinUp);
-  }
-
   // A command factory to turn the launch method into a command that requires this
   // subsystem
   public Command launchCommand() {
-    return this.run(this::launch);
+    return this.runEnd(this::launch, this::stop);
+  }
+
+  // A command factory to turn the eject method into a command that requires this
+  // subsystem
+  public Command ejectCommand() {
+    return this.runEnd(this::eject, this::stop);
+  }
+
+  // A command factory to turn the intake method into a command that requires this
+  // subsystem
+  public Command intakeCommand() {
+    return this.runEnd(this::intake, this::stop);
   }
 
   @Override
