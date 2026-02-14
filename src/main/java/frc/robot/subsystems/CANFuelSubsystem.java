@@ -20,6 +20,7 @@ import static frc.robot.Constants.FuelConstants.LAUNCHER_SPEED_RPM;
 import static frc.robot.Constants.FuelConstants.LAUNCHING_FEEDER_VOLTAGE;
 import static frc.robot.Constants.FuelConstants.LAUNCHING_INTAKE_VOLTAGE;
 import static frc.robot.Constants.FuelConstants.LAUNCH_TABLE;
+import static frc.robot.Constants.FuelConstants.LAUNCH_TABLE_BOOLEAN;
 import static frc.robot.Constants.FuelConstants.RATE_LIMIT;
 import static frc.robot.Constants.FuelConstants.SPIN_UP_FEEDER_VOLTAGE;
 
@@ -148,10 +149,15 @@ public class CANFuelSubsystem extends SubsystemBase {
   public void launch() {
     loadPidfTunableNumbers();
     launcherEnabled = true;
-    Pose2d hubPos =
-        drive.isRedAlliance() ? DriveConstants.RED_HUB_CENTER : DriveConstants.BLUE_HUB_CENTER;
-    launcherGoal =
-        LAUNCH_TABLE.get(drive.getPose().getTranslation().getDistance(hubPos.getTranslation()))[1];
+    if (LAUNCH_TABLE_BOOLEAN) {
+      Pose2d hubPos =
+          drive.isRedAlliance() ? DriveConstants.RED_HUB_CENTER : DriveConstants.BLUE_HUB_CENTER;
+      launcherGoal =
+          LAUNCH_TABLE
+              .get(drive.getPose().getTranslation().getDistance(hubPos.getTranslation()))[1];
+    } else {
+      launcherGoal = launcherRPM.get();
+    }
     launcherController.setSetpoint(launcherGoal);
     intakeGoal = SmartDashboard.getNumber(LAUNCHING_INTAKE_ROLLER_KEY, LAUNCHING_INTAKE_VOLTAGE);
   }

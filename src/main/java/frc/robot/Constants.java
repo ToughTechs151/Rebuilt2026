@@ -223,6 +223,7 @@ public final class Constants {
     public static final double SPIN_UP_FEEDER_VOLTAGE = -6;
     public static final double SPIN_UP_SECONDS = 1.0;
     public static final double RATE_LIMIT = 999.0; // volts per second
+    public static final boolean LAUNCH_TABLE_BOOLEAN = true;
     public static final LUT LAUNCH_TABLE =
         new LUT(
             new double[][] {
