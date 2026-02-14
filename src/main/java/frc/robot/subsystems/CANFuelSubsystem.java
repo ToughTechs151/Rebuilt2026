@@ -28,7 +28,6 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -166,15 +165,13 @@ public class CANFuelSubsystem extends SubsystemBase {
 
   // A command factory to turn the eject method into a command that requires this
   // subsystem
-  public Command ejectCommand()
-  {
+  public Command ejectCommand() {
     return this.runEnd(this::eject, this::stop);
   }
 
   // A command factory to turn the intake method into a command that requires this
   // subsystem
-  public Command intakeCommand()
-  {
+  public Command intakeCommand() {
     return this.runEnd(this::intake, this::stop);
   }
 
