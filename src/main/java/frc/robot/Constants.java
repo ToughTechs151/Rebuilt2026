@@ -227,9 +227,10 @@ public final class Constants {
     public static final LUT LAUNCH_TABLE =
         new LUT(
             new double[][] {
-              {2.0, 4800.0},
-              {4.0, 5000.0},
-              {6.0, 5200.0}
+              {1.2192, 4000.0},
+              {2.1336, 4800.0},
+              {2.4384, 5000.0},
+              {3.048, 5400.0}
             });
 
     // Constants tunable through TunableNumbers
