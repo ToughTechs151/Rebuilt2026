@@ -33,11 +33,9 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.util.TunableNumber;
 
@@ -150,11 +148,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     loadPidfTunableNumbers();
     launcherEnabled = true;
     if (LAUNCH_TABLE_BOOLEAN) {
-      Pose2d hubPos =
-          drive.isRedAlliance() ? DriveConstants.RED_HUB_CENTER : DriveConstants.BLUE_HUB_CENTER;
-      launcherGoal =
-          LAUNCH_TABLE
-              .get(drive.getPose().getTranslation().getDistance(hubPos.getTranslation()))[1];
+      launcherGoal = LAUNCH_TABLE.get(drive.getDistanceToHub())[1];
     } else {
       launcherGoal = launcherRPM.get();
     }
@@ -241,6 +235,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Launcher PID", pidOutput);
     SmartDashboard.putNumber("Launcher Feedforward", newFeedforward);
     SmartDashboard.putBoolean("Launcher Enabled", launcherEnabled);
+    SmartDashboard.putNumber("Distance to Hub", drive.getDistanceToHub());
   }
 
   /**
