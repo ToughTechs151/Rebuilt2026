@@ -19,6 +19,8 @@ import static frc.robot.Constants.FuelConstants.LAUNCHER_MOTOR_ID;
 import static frc.robot.Constants.FuelConstants.LAUNCHER_SPEED_RPM;
 import static frc.robot.Constants.FuelConstants.LAUNCHING_FEEDER_VOLTAGE;
 import static frc.robot.Constants.FuelConstants.LAUNCHING_INTAKE_VOLTAGE;
+import static frc.robot.Constants.FuelConstants.LAUNCH_TABLE;
+import static frc.robot.Constants.FuelConstants.LAUNCH_TABLE_BOOLEAN;
 import static frc.robot.Constants.FuelConstants.RATE_LIMIT;
 import static frc.robot.Constants.FuelConstants.SPIN_UP_FEEDER_VOLTAGE;
 
@@ -31,9 +33,11 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.util.TunableNumber;
 
@@ -79,6 +83,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     this.drive = drive;
 
     limiter = new SlewRateLimiter(RATE_LIMIT);
+
     // create brushed motors for each of the motors on the launcher mechanism
     launcherRoller = new SparkMax(LAUNCHER_MOTOR_ID, MotorType.kBrushless);
     intakeRoller = new SparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless);
@@ -140,10 +145,19 @@ public class CANFuelSubsystem extends SubsystemBase {
   }
 
   // A method to set the rollers to values for launching.
+  // Finds the needed launcher speed based on the distance from the robot to the hub
   public void launch() {
     loadPidfTunableNumbers();
     launcherEnabled = true;
-    launcherGoal = launcherRPM.get();
+    if (LAUNCH_TABLE_BOOLEAN) {
+      Pose2d hubPos =
+          drive.isRedAlliance() ? DriveConstants.RED_HUB_CENTER : DriveConstants.BLUE_HUB_CENTER;
+      launcherGoal =
+          LAUNCH_TABLE
+              .get(drive.getPose().getTranslation().getDistance(hubPos.getTranslation()))[1];
+    } else {
+      launcherGoal = launcherRPM.get();
+    }
     launcherController.setSetpoint(launcherGoal);
     intakeGoal = SmartDashboard.getNumber(LAUNCHING_INTAKE_ROLLER_KEY, LAUNCHING_INTAKE_VOLTAGE);
   }
