@@ -1,3 +1,4 @@
+// From FRC 2811 Stormbots 2025 code
 package frc.robot.util;
 
 public class Lerp {
@@ -48,14 +49,5 @@ public class Lerp {
       double input, double inMin, double inMax, double outputMin, double outputMax) {
     return (input / (inMax - inMin) - inMin / (inMax - inMin)) * (outputMax - outputMin)
         + outputMin;
-  }
-
-  /**
-   * Arduino Map function. <br>
-   * Prefer the {@link #lerp()} function which does the same thing, but is not improperly named.
-   */
-  @Deprecated
-  public static double map(double x, double in_min, double in_max, double out_min, double out_max) {
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
   }
 }

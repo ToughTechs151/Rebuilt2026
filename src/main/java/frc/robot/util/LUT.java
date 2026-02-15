@@ -1,3 +1,4 @@
+// From FRC 2811 Stormbots 2025 code
 package frc.robot.util;
 
 import java.util.Arrays;
@@ -11,8 +12,8 @@ public class LUT {
    * Assumes 2 or more rows, and an equal number of columns. <br>
    * Example:
    *
-   * <pre lang="java">
-   * var lut = LUT(new double[][]{{
+   * <pre>
+   * var lut = new LUT(new double[][]{
    * {0,1,2},
    * {1,2,4},
    * {3,6,36}
