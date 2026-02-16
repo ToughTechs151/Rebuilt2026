@@ -30,6 +30,7 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -103,6 +104,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     // create the configuration for the feeder roller, set a current limit and apply
     // the config to the controller
     SparkMaxConfig feederConfig = new SparkMaxConfig();
+    feederConfig.idleMode(IdleMode.kBrake);
     feederConfig.smartCurrentLimit(FEEDER_MOTOR_CURRENT_LIMIT);
     feederRoller.configure(
         feederConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -112,6 +114,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     // launching, and apply the config to the controller
     SparkMaxConfig launcherConfig = new SparkMaxConfig();
     launcherConfig.inverted(true);
+    launcherConfig.idleMode(IdleMode.kBrake);
     launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
     launcherRoller.configure(
         launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -120,6 +123,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     // the motor to inverted so that positive values are used for intaking,
     // and apply the config to the controller
     SparkMaxConfig intakeConfig = new SparkMaxConfig();
+    intakeConfig.idleMode(IdleMode.kBrake);
     intakeConfig.smartCurrentLimit(INTAKE_MOTOR_CURRENT_LIMIT);
     intakeRoller.configure(
         intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -194,7 +198,7 @@ public class CANFuelSubsystem extends SubsystemBase {
       pidOutput = launcherController.calculate(launcherEncoder.getVelocity());
       newFeedforward = feedforward.calculate(launcherController.getSetpoint());
       launcherRoller.setVoltage(pidOutput + newFeedforward);
-      if (launcherEncoder.getVelocity() < launcherGoal * 0.9) {
+      if (launcherEncoder.getVelocity() < launcherGoal * 0.93) {
         feederGoal = SmartDashboard.getNumber(SPINUP_FEEDER_ROLLER_KEY, SPIN_UP_FEEDER_VOLTAGE);
       } else {
         feederGoal =
