@@ -693,6 +693,17 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
+   * Calculate the distance to the alliance hub.
+   *
+   * @return The distance to the alliance hub in meters.
+   */
+  public double getDistanceToHub() {
+    Pose2d hubPos =
+        isRedAlliance() ? DriveConstants.RED_HUB_CENTER : DriveConstants.BLUE_HUB_CENTER;
+    return getPose().getTranslation().getDistance(hubPos.getTranslation());
+  }
+
+  /**
    * This will zero (calibrate) the robot to assume the current position is facing forward.
    *
    * <p>If red alliance rotate the robot 180 after the drive base zero command

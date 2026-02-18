@@ -13,8 +13,6 @@
             "/NT",
             "/command",
             "/NT/SmartDashboard/swerve/advantagescope",
-            "/SmartDashboard/Field/Robot",
-            "/SmartDashboard/Field/OdometryPose",
             "/robot",
             "/NT/photonvision/Arducam_OV9281_Left/targetPose",
             "/NT/photonvision/Arducam_OV9281_Back/targetPose",
@@ -32,16 +30,15 @@
             "/photonvision/Arducam_OV9281_Left/rawBytes/metadata",
             "/photonvision/Arducam_OV9281_Left/targetPose/translation",
             "/SmartDashboard/VisionSystemSim-Vision",
-            "/SmartDashboard/swerve",
             "/SmartDashboard/swerve/modules/frontright",
-            "/SmartDashboard/PDP",
-            "/Fuel Simulation",
             "/SmartDashboard",
-            "/SmartDashboard/CANFuelSubsystem"
+            "/SmartDashboard/swerve/imu",
+            "/SmartDashboard/CANFuelSubsystem",
+            "/Fuel Simulation"
           ]
         },
         "tabs": {
-          "selected": 10,
+          "selected": 4,
           "tabs": [
             {
               "type": 0,
@@ -133,19 +130,19 @@
                 ],
                 "game": "FRC:2026 Field"
               },
-              "controllerUUID": "3iy9x2hwg287dcd0yfchf9aa1u1thj7i",
+              "controllerUUID": "h9nbbexo3yiisr71zqf4kzbmmr80wit4",
               "renderer": {
                 "cameraIndex": -1,
                 "orbitFov": 50,
                 "cameraPosition": [
-                  6.7964300806930815,
-                  3.360811190968077,
-                  -3.5525339967996588
+                  -9.887933749165658,
+                  3.297285267865842,
+                  3.773552861294114
                 ],
                 "cameraTarget": [
-                  -2.065145788987705,
-                  -0.03230800335271154,
-                  -0.864418841625151
+                  -4.551540721367448,
+                  0.2740536712382786,
+                  -0.10355873401578952
                 ]
               },
               "controlsHeight": 200
@@ -182,6 +179,157 @@
                 "orientation": 1
               },
               "controllerUUID": "kdk6x5bryrfkn4ieguhde319obogb7li",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "Fuel",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/FeederVoltage",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Feeder Goal",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Intake Goal",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/IntakeVoltage",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#c0b487",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/LauncherVoltage",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#d993aa",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/FeederVelocity",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#80588e",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/IntakeVelocity",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e48b32",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Launcher Goal",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#858584",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/LauncherVelocity",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "rzhylwk9rqs7eu59cgiqekolr92xwli3",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "Hub",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/Distance to Hub",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "xppksu49sari9y7c4x8nqlqxm6b1ervx",
               "renderer": null,
               "controlsHeight": 200
             },
@@ -273,15 +421,22 @@
                     }
                   }
                 ],
-                "discreteSources": [],
+                "discreteSources": [
+                  {
+                    "type": "stripes",
+                    "logKey": "NT:/SmartDashboard/CANFuelSubsystem/.command",
+                    "logType": "String",
+                    "visible": true,
+                    "options": {
+                      "color": "#d993aa"
+                    }
+                  }
+                ],
                 "leftLockedRange": [
                   -5,
                   5
                 ],
-                "rightLockedRange": [
-                  -200,
-                  200
-                ],
+                "rightLockedRange": null,
                 "leftUnitConversion": {
                   "autoTarget": null,
                   "preset": null
@@ -294,6 +449,51 @@
                 "rightFilter": 0
               },
               "controllerUUID": "pb733684zqywx9kwqn0hf6sgyhnlx360",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 1,
+              "title": "IMU",
+              "controller": {
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/swerve/imu/raw",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "NT:/SmartDashboard/swerve/imu/adjusted",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0
+              },
+              "controllerUUID": "3nbrm5f9nxw87b7flxzk8s0p57wfkirr",
               "renderer": null,
               "controlsHeight": 200
             },
@@ -346,137 +546,6 @@
                 "rightFilter": 0
               },
               "controllerUUID": "fbg2yvv4w8gtljsmoz32kpp0fx72ygc3",
-              "renderer": null,
-              "controlsHeight": 200
-            },
-            {
-              "type": 1,
-              "title": "Fuel",
-              "controller": {
-                "leftSources": [
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:/SmartDashboard/Feeder Goal",
-                    "logType": "Number",
-                    "visible": true,
-                    "options": {
-                      "color": "#80588e",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:/SmartDashboard/Intake Goal",
-                    "logType": "Number",
-                    "visible": true,
-                    "options": {
-                      "color": "#e48b32",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:/SmartDashboard/Launcher Goal",
-                    "logType": "Number",
-                    "visible": true,
-                    "options": {
-                      "color": "#c0b487",
-                      "size": "normal"
-                    }
-                  }
-                ],
-                "rightSources": [
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:/SmartDashboard/FeederVelocity",
-                    "logType": "Number",
-                    "visible": true,
-                    "options": {
-                      "color": "#2b66a2",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:/SmartDashboard/IntakeVelocity",
-                    "logType": "Number",
-                    "visible": true,
-                    "options": {
-                      "color": "#e5b31b",
-                      "size": "normal"
-                    }
-                  },
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:/SmartDashboard/LauncherVelocity",
-                    "logType": "Number",
-                    "visible": true,
-                    "options": {
-                      "color": "#af2437",
-                      "size": "normal"
-                    }
-                  }
-                ],
-                "discreteSources": [
-                  {
-                    "type": "stripes",
-                    "logKey": "NT:/SmartDashboard/CANFuelSubsystem/.command",
-                    "logType": "String",
-                    "visible": true,
-                    "options": {
-                      "color": "#858584"
-                    }
-                  }
-                ],
-                "leftLockedRange": null,
-                "rightLockedRange": null,
-                "leftUnitConversion": {
-                  "autoTarget": null,
-                  "preset": null
-                },
-                "rightUnitConversion": {
-                  "autoTarget": null,
-                  "preset": null
-                },
-                "leftFilter": 0,
-                "rightFilter": 0
-              },
-              "controllerUUID": "6b9mmtsl6ng2gk366bt3gidt1582kihw",
-              "renderer": null,
-              "controlsHeight": 200
-            },
-            {
-              "type": 1,
-              "title": "Sim Balls",
-              "controller": {
-                "leftSources": [
-                  {
-                    "type": "stepped",
-                    "logKey": "NT:/SmartDashboard/Sim Ball Count",
-                    "logType": "Number",
-                    "visible": true,
-                    "options": {
-                      "color": "#2b66a2",
-                      "size": "normal"
-                    }
-                  }
-                ],
-                "rightSources": [],
-                "discreteSources": [],
-                "leftLockedRange": null,
-                "rightLockedRange": null,
-                "leftUnitConversion": {
-                  "autoTarget": null,
-                  "preset": null
-                },
-                "rightUnitConversion": {
-                  "autoTarget": null,
-                  "preset": null
-                },
-                "leftFilter": 0,
-                "rightFilter": 0
-              },
-              "controllerUUID": "c9crwvnqk9hm9jd3nlbzsxo7yez08jx2",
               "renderer": null,
               "controlsHeight": 200
             },

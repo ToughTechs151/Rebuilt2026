@@ -29,15 +29,14 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.util.TunableNumber;
 
@@ -105,6 +104,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     // create the configuration for the feeder roller, set a current limit and apply
     // the config to the controller
     SparkMaxConfig feederConfig = new SparkMaxConfig();
+    feederConfig.idleMode(IdleMode.kBrake);
     feederConfig.smartCurrentLimit(FEEDER_MOTOR_CURRENT_LIMIT);
     feederRoller.configure(
         feederConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -114,6 +114,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     // launching, and apply the config to the controller
     SparkMaxConfig launcherConfig = new SparkMaxConfig();
     launcherConfig.inverted(true);
+    launcherConfig.idleMode(IdleMode.kBrake);
     launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
     launcherRoller.configure(
         launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -122,6 +123,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     // the motor to inverted so that positive values are used for intaking,
     // and apply the config to the controller
     SparkMaxConfig intakeConfig = new SparkMaxConfig();
+    intakeConfig.idleMode(IdleMode.kBrake);
     intakeConfig.smartCurrentLimit(INTAKE_MOTOR_CURRENT_LIMIT);
     intakeRoller.configure(
         intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -150,11 +152,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     loadPidfTunableNumbers();
     launcherEnabled = true;
     if (LAUNCH_TABLE_BOOLEAN) {
-      Pose2d hubPos =
-          drive.isRedAlliance() ? DriveConstants.RED_HUB_CENTER : DriveConstants.BLUE_HUB_CENTER;
-      launcherGoal =
-          LAUNCH_TABLE
-              .get(drive.getPose().getTranslation().getDistance(hubPos.getTranslation()))[1];
+      launcherGoal = LAUNCH_TABLE.get(drive.getDistanceToHub())[1];
     } else {
       launcherGoal = launcherRPM.get();
     }
@@ -200,7 +198,7 @@ public class CANFuelSubsystem extends SubsystemBase {
       pidOutput = launcherController.calculate(launcherEncoder.getVelocity());
       newFeedforward = feedforward.calculate(launcherController.getSetpoint());
       launcherRoller.setVoltage(pidOutput + newFeedforward);
-      if (launcherEncoder.getVelocity() < launcherGoal * 0.9) {
+      if (launcherEncoder.getVelocity() < launcherGoal * 0.93) {
         feederGoal = SmartDashboard.getNumber(SPINUP_FEEDER_ROLLER_KEY, SPIN_UP_FEEDER_VOLTAGE);
       } else {
         feederGoal =
@@ -241,6 +239,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Launcher PID", pidOutput);
     SmartDashboard.putNumber("Launcher Feedforward", newFeedforward);
     SmartDashboard.putBoolean("Launcher Enabled", launcherEnabled);
+    SmartDashboard.putNumber("Distance to Hub", drive.getDistanceToHub());
   }
 
   /**
