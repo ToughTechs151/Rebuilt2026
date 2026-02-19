@@ -52,7 +52,7 @@ public class FuelSubsystemSim {
   private final DCMotorSim intakeMotorSim = new DCMotorSim(intakePlant, motorGearbox);
 
   private static final int MAX_BALLS = 12;
-  private int ballCount = 8;
+  private int ballCount = 0;
   private double launchDelay = 0.0;
   private double ejectDelay = 0.0;
 
@@ -205,5 +205,10 @@ public class FuelSubsystemSim {
                 })
             .withName("Reset Fuel")
             .ignoringDisable(true));
+  }
+
+  // Method to set the ball count for testing purposes
+  public void setBallCount(int count) {
+    ballCount = Math.max(0, Math.min(count, MAX_BALLS));
   }
 }

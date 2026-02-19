@@ -121,6 +121,10 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
 
+    if (isSimulation() && simModel != null) {
+      simModel.resetBallCount();
+    }
+
     if (this.robotContainer == null) {
       DriverStation.reportError("autonomousInit called with null robotContainer", false);
     } else {
