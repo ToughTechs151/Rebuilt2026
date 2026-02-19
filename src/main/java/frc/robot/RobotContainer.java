@@ -5,6 +5,8 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -146,6 +148,7 @@ public class RobotContainer {
     drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
 
     // Named Commands for Autos
+    NamedCommands.registerCommand("Launch Ball", ballSubsystem.launchCommand().withTimeout(5.0));
 
     // Setup the auto command chooser using the PathPlanner autos
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -153,6 +156,8 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+
+    
   }
 
   /**
