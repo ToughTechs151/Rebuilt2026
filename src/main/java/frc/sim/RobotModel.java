@@ -91,4 +91,9 @@ public class RobotModel {
     simpdp.resetData();
     RoboRioSim.resetData();
   }
+
+  /** Reset the ball count. */
+  public final void resetBallCount() {
+    fuelModel.setBallCount(8);
+  }
 }
