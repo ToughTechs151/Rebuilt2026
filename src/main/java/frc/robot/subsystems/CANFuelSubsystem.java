@@ -143,7 +143,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     feederGoal = -1 * SmartDashboard.getNumber(INTAKING_FEEDER_ROLLER_KEY, INTAKING_FEEDER_VOLTAGE);
     launcherGoal = 0.0;
     launcherController.setSetpoint(launcherGoal);
-    intakeGoal = -1 * SmartDashboard.getNumber(INTAKING_INTAKE_ROLLER_KEY, INTAKING_INTAKE_VOLTAGE);
+    intakeGoal = -2 * SmartDashboard.getNumber(INTAKING_INTAKE_ROLLER_KEY, INTAKING_INTAKE_VOLTAGE);
   }
 
   // A method to set the rollers to values for launching.
