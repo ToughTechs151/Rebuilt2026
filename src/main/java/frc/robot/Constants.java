@@ -131,7 +131,7 @@ public final class Constants {
     public static final double POV_SPEED = 0.05;
 
     /** Enable/disable vision system for odometry correction. */
-    public static final boolean ENABLE_VISION = false;
+    public static final boolean ENABLE_VISION = true;
 
     /** Maximum distance to detect AprilTags in meters. */
     public static final double MAX_TAG_DISTANCE = 2.75; // meters
