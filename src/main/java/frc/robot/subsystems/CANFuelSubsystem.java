@@ -10,9 +10,7 @@ import static frc.robot.Constants.FuelConstants.INTAKE_MOTOR_CURRENT_LIMIT;
 import static frc.robot.Constants.FuelConstants.INTAKE_MOTOR_ID;
 import static frc.robot.Constants.FuelConstants.INTAKING_FEEDER_VOLTAGE;
 import static frc.robot.Constants.FuelConstants.INTAKING_INTAKE_VOLTAGE;
-import static frc.robot.Constants.FuelConstants.LAUNCHER_KA_VOLTS_PER_RPM2;
 import static frc.robot.Constants.FuelConstants.LAUNCHER_KP_VOLTS_PER_RPM;
-import static frc.robot.Constants.FuelConstants.LAUNCHER_KS_VOLTS;
 import static frc.robot.Constants.FuelConstants.LAUNCHER_KV_VOLTS_PER_RPM;
 import static frc.robot.Constants.FuelConstants.LAUNCHER_MOTOR_CURRENT_LIMIT;
 import static frc.robot.Constants.FuelConstants.LAUNCHER_MOTOR_ID;
@@ -27,12 +25,13 @@ import static frc.robot.Constants.FuelConstants.SPIN_UP_FEEDER_VOLTAGE;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -48,6 +47,7 @@ public class CANFuelSubsystem extends SubsystemBase {
   private final RelativeEncoder feederEncoder;
   private final RelativeEncoder launcherEncoder;
   private final RelativeEncoder intakeEncoder;
+  private SparkClosedLoopController launcherController;
 
   private static final String INTAKING_FEEDER_ROLLER_KEY = "Intaking feeder roller value";
   private static final String INTAKING_INTAKE_ROLLER_KEY = "Intaking intake roller value";
@@ -60,22 +60,11 @@ public class CANFuelSubsystem extends SubsystemBase {
   private boolean launcherEnabled = false;
   private double intakeGoal = 0.0;
 
-  private double pidOutput = 0.0;
-  private double newFeedforward = 0;
-
   // Setup tunable numbers and controllers for the motor.
   private TunableNumber proportionalGain =
       new TunableNumber("Launcher Kp", LAUNCHER_KP_VOLTS_PER_RPM);
-  private TunableNumber staticGain = new TunableNumber("Motor Ks", LAUNCHER_KS_VOLTS);
   private TunableNumber velocityGain = new TunableNumber("Launcher Kv", LAUNCHER_KV_VOLTS_PER_RPM);
-  private TunableNumber accelerationGain =
-      new TunableNumber("Launcher Ka", LAUNCHER_KA_VOLTS_PER_RPM2);
-  private TunableNumber launcherRPM = new TunableNumber("Launcher Speed RPM", LAUNCHER_SPEED_RPM);
-
-  private PIDController launcherController = new PIDController(proportionalGain.get(), 0.0, 0.0);
-
-  private SimpleMotorFeedforward feedforward =
-      new SimpleMotorFeedforward(staticGain.get(), velocityGain.get(), accelerationGain.get());
+  private TunableNumber launcherRpm = new TunableNumber("Launcher Speed RPM", LAUNCHER_SPEED_RPM);
 
   /** Creates a new CANFuelSubsystem. */
   public CANFuelSubsystem(SwerveSubsystem drive) {
@@ -116,6 +105,20 @@ public class CANFuelSubsystem extends SubsystemBase {
     launcherConfig.inverted(true);
     launcherConfig.idleMode(IdleMode.kBrake);
     launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
+
+    launcherConfig.encoder.quadratureMeasurementPeriod(10).quadratureAverageDepth(2);
+
+    // Closed loop controller on SparkMax
+    launcherController = launcherRoller.getClosedLoopController();
+    launcherConfig
+        .closedLoop
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .p(proportionalGain.get())
+        .i(0)
+        .d(0)
+        .outputRange(-1.0, 1.0)
+        .feedForward
+        .kV(velocityGain.get());
     launcherRoller.configure(
         launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -133,7 +136,7 @@ public class CANFuelSubsystem extends SubsystemBase {
   public void intake() {
     feederGoal = SmartDashboard.getNumber(INTAKING_FEEDER_ROLLER_KEY, INTAKING_FEEDER_VOLTAGE);
     launcherGoal = 0.0;
-    launcherController.setSetpoint(launcherGoal);
+    launcherController.setSetpoint(launcherGoal, ControlType.kVelocity);
     intakeGoal = SmartDashboard.getNumber(INTAKING_INTAKE_ROLLER_KEY, INTAKING_INTAKE_VOLTAGE);
   }
 
@@ -142,7 +145,7 @@ public class CANFuelSubsystem extends SubsystemBase {
   public void eject() {
     feederGoal = -1 * SmartDashboard.getNumber(INTAKING_FEEDER_ROLLER_KEY, INTAKING_FEEDER_VOLTAGE);
     launcherGoal = 0.0;
-    launcherController.setSetpoint(launcherGoal);
+    launcherController.setSetpoint(launcherGoal, ControlType.kVelocity);
     intakeGoal = -2 * SmartDashboard.getNumber(INTAKING_INTAKE_ROLLER_KEY, INTAKING_INTAKE_VOLTAGE);
   }
 
@@ -154,9 +157,9 @@ public class CANFuelSubsystem extends SubsystemBase {
     if (LAUNCH_TABLE_BOOLEAN) {
       launcherGoal = LAUNCH_TABLE.get(drive.getDistanceToHub())[1];
     } else {
-      launcherGoal = launcherRPM.get();
+      launcherGoal = launcherRpm.get();
     }
-    launcherController.setSetpoint(launcherGoal);
+    launcherController.setSetpoint(launcherGoal, ControlType.kVelocity);
     intakeGoal = SmartDashboard.getNumber(LAUNCHING_INTAKE_ROLLER_KEY, LAUNCHING_INTAKE_VOLTAGE);
   }
 
@@ -165,7 +168,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     launcherEnabled = false;
     feederGoal = 0.0;
     launcherGoal = 0.0;
-    launcherController.setSetpoint(launcherGoal);
+    launcherController.setSetpoint(0.0, ControlType.kVoltage);
     intakeGoal = 0.0;
   }
 
@@ -195,20 +198,12 @@ public class CANFuelSubsystem extends SubsystemBase {
     // feedforward to run the motor at the desired speed. Store the individual
     // values for logging.
     if (launcherEnabled) {
-      pidOutput = launcherController.calculate(launcherEncoder.getVelocity());
-      newFeedforward = feedforward.calculate(launcherController.getSetpoint());
-      launcherRoller.setVoltage(pidOutput + newFeedforward);
       if (launcherEncoder.getVelocity() < launcherGoal * 0.93) {
         feederGoal = SmartDashboard.getNumber(SPINUP_FEEDER_ROLLER_KEY, SPIN_UP_FEEDER_VOLTAGE);
       } else {
         feederGoal =
             SmartDashboard.getNumber(LAUNCHING_FEEDER_ROLLER_KEY, LAUNCHING_FEEDER_VOLTAGE);
       }
-    } else {
-      launcherController.reset();
-      pidOutput = 0.0;
-      newFeedforward = 0.0;
-      launcherRoller.setVoltage(0.0);
     }
 
     // Use the slew rate limiter to ramp the feeder voltage to avoid sudden changes
@@ -235,9 +230,6 @@ public class CANFuelSubsystem extends SubsystemBase {
     SmartDashboard.putNumber(
         "FeederVoltage", feederRoller.getAppliedOutput() * feederRoller.getBusVoltage());
     SmartDashboard.putNumber("FeederVelocity", feederEncoder.getVelocity());
-
-    SmartDashboard.putNumber("Launcher PID", pidOutput);
-    SmartDashboard.putNumber("Launcher Feedforward", newFeedforward);
     SmartDashboard.putBoolean("Launcher Enabled", launcherEnabled);
     SmartDashboard.putNumber("Distance to Hub", drive.getDistanceToHub());
   }
@@ -249,11 +241,10 @@ public class CANFuelSubsystem extends SubsystemBase {
   private void loadPidfTunableNumbers() {
 
     // Read tunable values for PID controller
-    launcherController.setP(proportionalGain.get());
-
-    // Read tunable values for Feedforward and create a new instance
-    feedforward =
-        new SimpleMotorFeedforward(staticGain.get(), velocityGain.get(), accelerationGain.get());
+    SparkMaxConfig launcherConfig = new SparkMaxConfig();
+    launcherConfig.closedLoop.p(proportionalGain.get()).feedForward.kV(velocityGain.get());
+    launcherRoller.configure(
+        launcherConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   // Functions for simulation purposes
