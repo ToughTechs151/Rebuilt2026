@@ -235,8 +235,8 @@ public final class Constants {
 
     // Constants tunable through TunableNumbers
     public static final double LAUNCHER_SPEED_RPM = 4800.0;
-    public static final double LAUNCHER_KP_VOLTS_PER_RPM = 0.002;
-    public static final double LAUNCHER_KV_VOLTS_PER_RPM = 0.0022 / 12.0;
+    public static final double LAUNCHER_KP_VOLTS_PER_RPM = 0.004;
+    public static final double LAUNCHER_KV_VOLTS_PER_RPM = 0.0022 / 12.0; // Duty cycle per RPM
 
     /** Motor simulation constants. */
     public static final double POUND_IN2_TO_KG_METERS2 =
