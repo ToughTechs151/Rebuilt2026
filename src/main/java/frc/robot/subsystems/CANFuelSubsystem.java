@@ -10,6 +10,7 @@ import static frc.robot.Constants.FuelConstants.INTAKE_MOTOR_CURRENT_LIMIT;
 import static frc.robot.Constants.FuelConstants.INTAKE_MOTOR_ID;
 import static frc.robot.Constants.FuelConstants.INTAKING_FEEDER_VOLTAGE;
 import static frc.robot.Constants.FuelConstants.INTAKING_INTAKE_VOLTAGE;
+import static frc.robot.Constants.FuelConstants.LAUNCHER_KD_VOLTS_PER_RPM_SEC;
 import static frc.robot.Constants.FuelConstants.LAUNCHER_KP_VOLTS_PER_RPM;
 import static frc.robot.Constants.FuelConstants.LAUNCHER_KV_VOLTS_PER_RPM;
 import static frc.robot.Constants.FuelConstants.LAUNCHER_MOTOR_CURRENT_LIMIT;
@@ -63,6 +64,9 @@ public class CANFuelSubsystem extends SubsystemBase {
   // Setup tunable numbers and controllers for the motor.
   private TunableNumber proportionalGain =
       new TunableNumber("Launcher Kp", LAUNCHER_KP_VOLTS_PER_RPM);
+  private TunableNumber derivativeGain =
+      new TunableNumber("Launcher Kd", LAUNCHER_KD_VOLTS_PER_RPM_SEC);
+
   private TunableNumber velocityGain = new TunableNumber("Launcher Kv", LAUNCHER_KV_VOLTS_PER_RPM);
   private TunableNumber launcherRpm = new TunableNumber("Launcher Speed RPM", LAUNCHER_SPEED_RPM);
 
@@ -115,7 +119,7 @@ public class CANFuelSubsystem extends SubsystemBase {
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .p(proportionalGain.get())
         .i(0)
-        .d(0)
+        .d(derivativeGain.get())
         .outputRange(-1.0, 1.0)
         .feedForward
         .kV(velocityGain.get());
@@ -242,7 +246,12 @@ public class CANFuelSubsystem extends SubsystemBase {
 
     // Read tunable values for PID controller
     SparkMaxConfig launcherConfig = new SparkMaxConfig();
-    launcherConfig.closedLoop.p(proportionalGain.get()).feedForward.kV(velocityGain.get());
+    launcherConfig
+        .closedLoop
+        .p(proportionalGain.get())
+        .d(derivativeGain.get())
+        .feedForward
+        .kV(velocityGain.get());
     launcherRoller.configure(
         launcherConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
