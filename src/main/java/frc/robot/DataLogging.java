@@ -19,6 +19,11 @@ public class DataLogging { // NOSONAR(java:S6548)
   private boolean everBrownout = false;
   private PowerDistribution pdp;
 
+  private double totalAmpHours = 0.0;
+  private double totalWattHours = 0.0;
+
+  private double lastTimestamp = 0.0;
+
   private DataLogging() {
     // Starts recording to data log
     DataLogManager.start();
@@ -49,6 +54,8 @@ public class DataLogging { // NOSONAR(java:S6548)
     commandLog.append("Opened command log");
 
     loopTime = new DoubleLogEntry(log, "/robot/LoopTime");
+
+    lastTimestamp = Timer.getFPGATimestamp();
   }
 
   private static class InstanceHolder {
@@ -97,6 +104,24 @@ public class DataLogging { // NOSONAR(java:S6548)
     if (Constants.LOOP_TIMING_LOG) {
       loopTime.append(Timer.getFPGATimestamp() - startTime);
     }
+
+    // Time delta calculation
+    double currentTime = Timer.getFPGATimestamp();
+    double deltaTimeSeconds = currentTime - lastTimestamp;
+    lastTimestamp = currentTime;
+    double deltaTimeHours = deltaTimeSeconds / 3600.0;
+
+    double totalCurrent = pdp.getTotalCurrent();
+    double voltage = pdp.getVoltage();
+    double power = totalCurrent * voltage;
+
+    // Integrate
+    totalAmpHours += totalCurrent * deltaTimeHours;
+    totalWattHours += power * deltaTimeHours;
+
+    // Send to SmartDashboard
+    SmartDashboard.putNumber("Battery/AmpHoursUsed", totalAmpHours);
+    SmartDashboard.putNumber("Battery/WattHoursUsed", totalWattHours);
 
     SmartDashboard.putNumber("Robot/Batt Voltage", RobotController.getBatteryVoltage());
     SmartDashboard.putBoolean("Robot/Brown Out", RobotController.isBrownedOut());
