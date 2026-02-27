@@ -13,7 +13,6 @@
     "types": {
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Alerts": "Alerts",
-      "/SmartDashboard/CANFuelSubsystem": "Subsystem",
       "/SmartDashboard/Encoders": "Alerts",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/IMU": "Alerts",
@@ -22,7 +21,6 @@
       "/SmartDashboard/PathPlanner": "Alerts",
       "/SmartDashboard/PhotonAlerts": "Alerts",
       "/SmartDashboard/Pigeon 2 (v6) [13]": "Gyro",
-      "/SmartDashboard/Reset Fuel": "Command",
       "/SmartDashboard/SendableChooser[0]": "String Chooser",
       "/SmartDashboard/Swerve Drive": "Alerts",
       "/SmartDashboard/SwerveSubsystem": "Subsystem",
