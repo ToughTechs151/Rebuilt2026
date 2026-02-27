@@ -91,7 +91,12 @@ public final class Constants {
     public static final double TURN_CONSTANT = 6;
   }
 
+  /** Constants used to define the robot's physical dimensions for fuel sim. */
   public static class Dimensions {
+    private Dimensions() {
+      throw new IllegalStateException("Dimensions Utility Class");
+    }
+
     public static final Distance BUMPER_THICKNESS = Inches.of(3); // frame to edge of bumper
     public static final Distance BUMPER_HEIGHT = Inches.of(7); // height from floor to top of bumper
     public static final Distance FRAME_SIZE_Y = Inches.of(26.25); // left to right (y-axis)
@@ -198,6 +203,7 @@ public final class Constants {
     public static final PIDConstants ROTATION_PID = new PIDConstants(2.5, 0.0, 0.0);
   }
 
+  /** Constants for the fuel subsystem and simulation. */
   public static final class FuelConstants {
     private FuelConstants() {
       // Prevent instantiation
@@ -222,6 +228,8 @@ public final class Constants {
     public static final double LAUNCHING_INTAKE_VOLTAGE = 4;
     public static final double SPIN_UP_FEEDER_VOLTAGE = -6;
     public static final double SPIN_UP_SECONDS = 1.0;
+    public static final double EJECTING_FEEDER_VOLTAGE = 12;
+    public static final double EJECTING_INTAKE_VOLTAGE = -6;
     public static final double RATE_LIMIT = 999.0; // volts per second
     public static final boolean LAUNCH_TABLE_BOOLEAN = false;
     public static final LUT LAUNCH_TABLE =
