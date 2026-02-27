@@ -222,29 +222,29 @@ public class Vision {
 
   /** Camera Enum to select each camera. */
   enum Cameras {
-    /** Left Camera. */
+    /** Rear Left Camera. */
     LEFT_CAM(
         "Arducam_OV9281_Left",
-        new Rotation3d(0, Math.toRadians(-20), Math.toRadians(-25)),
+        new Rotation3d(0, Math.toRadians(-20), Math.toRadians(155)),
         new Translation3d(
-            Units.inchesToMeters(10.75), Units.inchesToMeters(9.5), Units.inchesToMeters(7.9)),
+            Units.inchesToMeters(-9.0), Units.inchesToMeters(10.0), Units.inchesToMeters(7.9)),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)),
-    /** Right Camera. */
+    /** Rear Right Camera. */
     RIGHT_CAM(
         "Arducam_OV9281_Right",
-        new Rotation3d(0, Math.toRadians(-20), Math.toRadians(25)),
+        new Rotation3d(0, Math.toRadians(-20), Math.toRadians(-155)),
         new Translation3d(
-            Units.inchesToMeters(10.75), Units.inchesToMeters(-9.5), Units.inchesToMeters(7.9)),
+            Units.inchesToMeters(-9.0), Units.inchesToMeters(-10.0), Units.inchesToMeters(7.9)),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)),
 
-    /** Back Camera. */
-    BACK_CAM(
-        "Arducam_OV9281_Back",
-        new Rotation3d(0, Math.toRadians(-20), Math.toRadians(180)),
+    /** Front Camera. */
+    FRONT_CAM(
+        "Arducam_OV9281_Front",
+        new Rotation3d(0, Math.toRadians(-20), Math.toRadians(0)),
         new Translation3d(
-            Units.inchesToMeters(-10.7), Units.inchesToMeters(10.0), Units.inchesToMeters(9.7)),
+            Units.inchesToMeters(9.0), Units.inchesToMeters(10.0), Units.inchesToMeters(9.7)),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1));
 
