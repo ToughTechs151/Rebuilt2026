@@ -23,10 +23,6 @@ public class DataLogging { // NOSONAR(java:S6548)
   private double totalWattHours = 0.0;
 
   private double lastTimestamp = 0.0;
-  private boolean wasDisabled = true;
-
-  private DoubleLogEntry ampHoursLog;
-  private DoubleLogEntry wattHoursLog;
 
   private DataLogging() {
     // Starts recording to data log
@@ -58,9 +54,6 @@ public class DataLogging { // NOSONAR(java:S6548)
     commandLog.append("Opened command log");
 
     loopTime = new DoubleLogEntry(log, "/robot/LoopTime");
-
-    ampHoursLog = new DoubleLogEntry(log, "/battery/AmpHours");
-    wattHoursLog = new DoubleLogEntry(log, "/battery/WattHours");
 
     lastTimestamp = Timer.getFPGATimestamp();
   }
@@ -112,13 +105,6 @@ public class DataLogging { // NOSONAR(java:S6548)
       loopTime.append(Timer.getFPGATimestamp() - startTime);
     }
 
-    // Reset accumulators at start of enable (new match)
-    if (DriverStation.isEnabled() && wasDisabled) {
-      totalAmpHours = 0.0;
-      totalWattHours = 0.0;
-    }
-    wasDisabled = DriverStation.isDisabled();
-
     // Time delta calculation
     double currentTime = Timer.getFPGATimestamp();
     double deltaTimeSeconds = currentTime - lastTimestamp;
@@ -132,10 +118,6 @@ public class DataLogging { // NOSONAR(java:S6548)
     // Integrate
     totalAmpHours += totalCurrent * deltaTimeHours;
     totalWattHours += power * deltaTimeHours;
-
-    // Log to DataLog
-    ampHoursLog.append(totalAmpHours);
-    wattHoursLog.append(totalWattHours);
 
     // Send to SmartDashboard
     SmartDashboard.putNumber("Battery/AmpHoursUsed", totalAmpHours);
