@@ -127,13 +127,13 @@ public final class Constants {
      * Maximum robot speed calculated for Neo Vortex motors at 6700 RPM with 6.75:1 gears and 4"
      * wheels.
      */
-    public static final double MAX_SPEED = Units.feetToMeters(6700 / 6.75 / 60 * 4 * Math.PI / 12);
+    public static final double MAX_SPEED = Units.feetToMeters(6700 / 5.9 / 60 * 4 * Math.PI / 12);
 
     /** Time to hold motor brakes when robot is disabled in seconds. */
     public static final double WHEEL_LOCK_TIME = 10; // seconds
 
     /** Speed scaling factor for POV/directional drive commands. */
-    public static final double POV_SPEED = 0.05;
+    public static final double POV_SPEED = 0.2;
 
     /** Enable/disable vision system for odometry correction. */
     public static final boolean ENABLE_VISION = true;
