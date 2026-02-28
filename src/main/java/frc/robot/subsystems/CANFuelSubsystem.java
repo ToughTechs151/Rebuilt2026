@@ -29,11 +29,14 @@ public class CANFuelSubsystem extends SubsystemBase {
   private final SwerveSubsystem drive;
   private final SparkMax feederRoller;
   private final SparkMax launcherRoller;
+  private final SparkMax launcherRoller2;
   private final SparkMax intakeRoller;
   private final RelativeEncoder feederEncoder;
   private final RelativeEncoder launcherEncoder;
+  private final RelativeEncoder launcherEncoder2;
   private final RelativeEncoder intakeEncoder;
   private SparkClosedLoopController launcherController;
+  private SparkClosedLoopController launcherController2;
 
   private SlewRateLimiter limiter;
   private double feederGoal = 0.0;
@@ -73,10 +76,12 @@ public class CANFuelSubsystem extends SubsystemBase {
 
     // create brushed motors for each of the motors on the launcher mechanism
     launcherRoller = new SparkMax(FuelConstants.LAUNCHER_MOTOR_ID, MotorType.kBrushless);
+    launcherRoller2 = new SparkMax(FuelConstants.LAUNCHER_MOTOR2_ID, MotorType.kBrushless);
     intakeRoller = new SparkMax(FuelConstants.INTAKE_MOTOR_ID, MotorType.kBrushless);
     feederRoller = new SparkMax(FuelConstants.FEEDER_MOTOR_ID, MotorType.kBrushless);
     feederEncoder = feederRoller.getEncoder();
     launcherEncoder = launcherRoller.getEncoder();
+    launcherEncoder2 = launcherRoller2.getEncoder();
     intakeEncoder = intakeRoller.getEncoder();
 
     // create the configuration for the feeder roller, set a current limit and apply
@@ -99,6 +104,7 @@ public class CANFuelSubsystem extends SubsystemBase {
 
     // Closed loop controller on SparkMax
     launcherController = launcherRoller.getClosedLoopController();
+    launcherController2 = launcherRoller2.getClosedLoopController();
     launcherConfig
         .closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
@@ -109,6 +115,8 @@ public class CANFuelSubsystem extends SubsystemBase {
         .feedForward
         .kV(velocityGain.get());
     launcherRoller.configure(
+        launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    launcherRoller2.configure(
         launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // create the configuration for the intake roller, set a current limit, set
@@ -151,6 +159,7 @@ public class CANFuelSubsystem extends SubsystemBase {
       launcherGoal = launcherRpm.get();
     }
     launcherController.setSetpoint(launcherGoal, ControlType.kVelocity);
+    launcherController2.setSetpoint(launcherGoal, ControlType.kVelocity);
     intakeGoal = launchingIntakeVoltage.get();
   }
 
@@ -160,6 +169,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     feederGoal = 0.0;
     launcherGoal = 0.0;
     launcherController.setSetpoint(0.0, ControlType.kVoltage);
+    launcherController2.setSetpoint(0.0, ControlType.kVoltage);
     intakeGoal = 0.0;
   }
 
@@ -204,12 +214,16 @@ public class CANFuelSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Intake Goal", intakeGoal);
 
     SmartDashboard.putNumber("LauncherCurrent", launcherRoller.getOutputCurrent());
+    SmartDashboard.putNumber("LauncherCurrent2", launcherRoller2.getOutputCurrent());
     SmartDashboard.putNumber("IntakeCurrent", intakeRoller.getOutputCurrent());
     SmartDashboard.putNumber(
         "LauncherVoltage", launcherRoller.getAppliedOutput() * launcherRoller.getBusVoltage());
     SmartDashboard.putNumber(
+        "LauncherVoltage2", launcherRoller2.getAppliedOutput() * launcherRoller2.getBusVoltage());
+    SmartDashboard.putNumber(
         "IntakeVoltage", intakeRoller.getAppliedOutput() * intakeRoller.getBusVoltage());
     SmartDashboard.putNumber("LauncherVelocity", launcherEncoder.getVelocity());
+    SmartDashboard.putNumber("LauncherVelocity2", launcherEncoder2.getVelocity());
     SmartDashboard.putNumber("IntakeVelocity", intakeEncoder.getVelocity());
 
     SmartDashboard.putNumber("FeederCurrent", feederRoller.getOutputCurrent());

@@ -212,6 +212,7 @@ public final class Constants {
     // Motor controller IDs for Fuel Mechanism motors
     public static final int FEEDER_MOTOR_ID = 16;
     public static final int LAUNCHER_MOTOR_ID = 15;
+    public static final int LAUNCHER_MOTOR2_ID = 17;
     public static final int INTAKE_MOTOR_ID = 14;
 
     // Current limit and nominal voltage for fuel mechanism motors.
