@@ -91,7 +91,12 @@ public final class Constants {
     public static final double TURN_CONSTANT = 6;
   }
 
+  /** Constants used to define the robot's physical dimensions for fuel sim. */
   public static class Dimensions {
+    private Dimensions() {
+      throw new IllegalStateException("Dimensions Utility Class");
+    }
+
     public static final Distance BUMPER_THICKNESS = Inches.of(3); // frame to edge of bumper
     public static final Distance BUMPER_HEIGHT = Inches.of(7); // height from floor to top of bumper
     public static final Distance FRAME_SIZE_Y = Inches.of(26.25); // left to right (y-axis)
@@ -122,13 +127,13 @@ public final class Constants {
      * Maximum robot speed calculated for Neo Vortex motors at 6700 RPM with 6.75:1 gears and 4"
      * wheels.
      */
-    public static final double MAX_SPEED = Units.feetToMeters(6700 / 6.75 / 60 * 4 * Math.PI / 12);
+    public static final double MAX_SPEED = Units.feetToMeters(6700 / 5.9 / 60 * 4 * Math.PI / 12);
 
     /** Time to hold motor brakes when robot is disabled in seconds. */
     public static final double WHEEL_LOCK_TIME = 10; // seconds
 
     /** Speed scaling factor for POV/directional drive commands. */
-    public static final double POV_SPEED = 0.05;
+    public static final double POV_SPEED = 0.1;
 
     /** Enable/disable vision system for odometry correction. */
     public static final boolean ENABLE_VISION = true;
@@ -198,6 +203,7 @@ public final class Constants {
     public static final PIDConstants ROTATION_PID = new PIDConstants(2.5, 0.0, 0.0);
   }
 
+  /** Constants for the fuel subsystem and simulation. */
   public static final class FuelConstants {
     private FuelConstants() {
       // Prevent instantiation
@@ -206,12 +212,13 @@ public final class Constants {
     // Motor controller IDs for Fuel Mechanism motors
     public static final int FEEDER_MOTOR_ID = 16;
     public static final int LAUNCHER_MOTOR_ID = 15;
+    public static final int LAUNCHER_MOTOR2_ID = 17;
     public static final int INTAKE_MOTOR_ID = 14;
 
     // Current limit and nominal voltage for fuel mechanism motors.
-    public static final int FEEDER_MOTOR_CURRENT_LIMIT = 60;
+    public static final int FEEDER_MOTOR_CURRENT_LIMIT = 20;
     public static final int LAUNCHER_MOTOR_CURRENT_LIMIT = 60;
-    public static final int INTAKE_MOTOR_CURRENT_LIMIT = 60;
+    public static final int INTAKE_MOTOR_CURRENT_LIMIT = 40;
 
     // Voltage values for various fuel operations. These values may need to be tuned
     // based on exact robot construction.
@@ -222,8 +229,10 @@ public final class Constants {
     public static final double LAUNCHING_INTAKE_VOLTAGE = 4;
     public static final double SPIN_UP_FEEDER_VOLTAGE = -6;
     public static final double SPIN_UP_SECONDS = 1.0;
+    public static final double EJECTING_FEEDER_VOLTAGE = 12;
+    public static final double EJECTING_INTAKE_VOLTAGE = -6;
     public static final double RATE_LIMIT = 999.0; // volts per second
-    public static final boolean LAUNCH_TABLE_BOOLEAN = false;
+    public static final boolean LAUNCH_TABLE_BOOLEAN = true;
     public static final LUT LAUNCH_TABLE =
         new LUT(
             new double[][] {
@@ -235,9 +244,9 @@ public final class Constants {
 
     // Constants tunable through TunableNumbers
     public static final double LAUNCHER_SPEED_RPM = 4800.0;
-    public static final double LAUNCHER_KP_VOLTS_PER_RPM = 0.004;
+    public static final double LAUNCHER_KP_VOLTS_PER_RPM = 0.00015;
     public static final double LAUNCHER_KD_VOLTS_PER_RPM_SEC = 0.0;
-    public static final double LAUNCHER_KV_VOLTS_PER_RPM = 0.0022 / 12.0; // Duty cycle per RPM
+    public static final double LAUNCHER_KV_VOLTS_PER_RPM = 0.0021;
 
     /** Motor simulation constants. */
     public static final double POUND_IN2_TO_KG_METERS2 =
