@@ -6,7 +6,13 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.LEDPattern;
@@ -24,6 +30,7 @@ import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
+import java.util.Optional;
 import swervelib.SwerveInputStream;
 
 /**
@@ -254,9 +261,88 @@ public class RobotContainer {
     led.setPattern(pattern);
   }
 
+  private static final double HUB_TARGET_RADIUS_M = Units.feetToMeters(4.0);
+  private static final double HUB_RADIUS_TOL_M = Units.inchesToMeters(6.0);
+  private static final double HUB_HEADING_TOL_DEG = 8.0;
+  private static final double HUB_MIN_RADIUS_M = HUB_TARGET_RADIUS_M - HUB_RADIUS_TOL_M;
+  private static final double HUB_MAX_RADIUS_M = HUB_TARGET_RADIUS_M + HUB_RADIUS_TOL_M;
+  private static final double HUB_MIN_RADIUS_M_SQ = HUB_MIN_RADIUS_M * HUB_MIN_RADIUS_M;
+  private static final double HUB_MAX_RADIUS_M_SQ = HUB_MAX_RADIUS_M * HUB_MAX_RADIUS_M;
+
+  private Pose2d getHubCenterPose() {
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
+      return Constants.DriveConstants.RED_HUB_CENTER;
+    }
+    return Constants.DriveConstants.BLUE_HUB_CENTER;
+  }
+
+  public boolean isRobotOrangeReadyAtHub() {
+    Pose2d robotPose = drivebase.getPose();
+    Pose2d hubPose = getHubCenterPose();
+
+    if (!isRobotOnAllianceSideOfHub(robotPose, hubPose)) return false;
+
+    Translation2d hubToRobot = robotPose.getTranslation().minus(hubPose.getTranslation());
+    double distSq = hubToRobot.getX() * hubToRobot.getX() + hubToRobot.getY() * hubToRobot.getY();
+    if (distSq < HUB_MIN_RADIUS_M_SQ || distSq > HUB_MAX_RADIUS_M_SQ) return false;
+    Translation2d robotToHub = hubPose.getTranslation().minus(robotPose.getTranslation());
+    Rotation2d desiredHeading = robotToHub.getAngle(); // direction robot should face
+    Rotation2d currentHeading = robotPose.getRotation(); // robot’s current yaw
+
+    double headingErrorDeg = Math.abs(desiredHeading.minus(currentHeading).getDegrees());
+    return headingErrorDeg <= HUB_HEADING_TOL_DEG;
+  }
+
+  private boolean isRobotOnAllianceSideOfHub(Pose2d robotPose, Pose2d hubPose) {
+    Optional<Alliance> alliance = DriverStation.getAlliance();
+    if (alliance.isEmpty()) return false;
+
+    double robotX = robotPose.getX();
+    double hubX = hubPose.getX();
+
+    if (alliance.get() == Alliance.Blue) {
+      return robotX < hubX;
+    } else {
+      return robotX > hubX;
+    }
+  }
+
+  public Translation2d getHubToRobotVector() {
+    Pose2d robotPose = drivebase.getPose();
+    return robotPose.getTranslation().minus(getHubCenterPose().getTranslation());
+  }
+
+  public Rotation2d getHubToRobotAngle() {
+    return getHubToRobotVector().getAngle();
+  }
+
   /** Set the LEDs to show robot status. */
   public void setLedStatus() {
-    led.setPattern(LEDPattern.solid(Color.kDarkGreen));
+    LEDPattern desired;
+
+    Optional<Alliance> alliance = DriverStation.getAlliance();
+    if (alliance.isPresent() && alliance.get() == Alliance.Red) {
+      desired = LEDPattern.solid(Color.kRed);
+    } else if (alliance.isPresent() && alliance.get() == Alliance.Blue) {
+      desired = LEDPattern.solid(Color.kBlue);
+    } else {
+      desired = LEDPattern.solid(Color.kWhite);
+    }
+
+    boolean hubActive = HubTracker.isActive();
+
+    if (!hubActive) {
+      desired = LEDPattern.solid(Color.kPurple);
+    } else {
+      desired = LEDPattern.solid(Color.kGreen);
+
+      if (isRobotOrangeReadyAtHub()) {
+        desired = LEDPattern.solid(Color.kOrange);
+      }
+    }
+
+    led.setPattern(desired);
   }
 
   /**
