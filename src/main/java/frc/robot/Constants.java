@@ -242,7 +242,7 @@ public final class Constants {
             });
 
     // Constants tunable through TunableNumbers
-    public static final double LAUNCHER_SPEED_RPM = 4800.0;
+    public static final double LAUNCHER_SPEED_RPM = 3200.0;
     public static final double LAUNCHER_KP_VOLTS_PER_RPM = 0.00015;
     public static final double LAUNCHER_KD_VOLTS_PER_RPM_SEC = 0.0;
     public static final double LAUNCHER_KV_VOLTS_PER_RPM = 0.0022;

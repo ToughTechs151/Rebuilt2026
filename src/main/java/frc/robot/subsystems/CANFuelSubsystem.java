@@ -185,7 +185,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     // If the launcher is running but not up to speed, run the feeder inward. When the
     // launcher is up to speed, run the feeder to push balls into the launcher.
     if (launcherEnabled) {
-      if (launcherEncoder.getVelocity() < launcherGoal * 0.93) {
+      if (launcherEncoder.getVelocity() < launcherGoal * 0.88) {
         feederGoal = spinUpFeederVoltage.get();
       } else {
         feederGoal = launchingFeederVoltage.get();
