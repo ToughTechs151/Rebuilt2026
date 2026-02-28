@@ -133,7 +133,7 @@ public final class Constants {
     public static final double WHEEL_LOCK_TIME = 10; // seconds
 
     /** Speed scaling factor for POV/directional drive commands. */
-    public static final double POV_SPEED = 0.2;
+    public static final double POV_SPEED = 0.1;
 
     /** Enable/disable vision system for odometry correction. */
     public static final boolean ENABLE_VISION = true;
@@ -218,7 +218,7 @@ public final class Constants {
     // Current limit and nominal voltage for fuel mechanism motors.
     public static final int FEEDER_MOTOR_CURRENT_LIMIT = 20;
     public static final int LAUNCHER_MOTOR_CURRENT_LIMIT = 60;
-    public static final int INTAKE_MOTOR_CURRENT_LIMIT = 20;
+    public static final int INTAKE_MOTOR_CURRENT_LIMIT = 40;
 
     // Voltage values for various fuel operations. These values may need to be tuned
     // based on exact robot construction.
