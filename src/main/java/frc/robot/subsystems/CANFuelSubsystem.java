@@ -208,10 +208,10 @@ public class CANFuelSubsystem extends SubsystemBase {
     intakeRoller.setVoltage(intakeGoal);
 
     // Update SmartDashboard values for monitoring
-    SmartDashboard.putNumber("Feeder Goal", feederGoal);
-    SmartDashboard.putNumber("Feeder Set Voltage", feederVoltage);
-    SmartDashboard.putNumber("Launcher Goal", launcherGoal);
-    SmartDashboard.putNumber("Intake Goal", intakeGoal);
+    SmartDashboard.putNumber("Feeder/Goal", feederGoal);
+    SmartDashboard.putNumber("Feeder/Set Voltage", feederVoltage);
+    SmartDashboard.putNumber("Launcher/Goal", launcherGoal);
+    SmartDashboard.putNumber("Intake/Goal", intakeGoal);
 
     SmartDashboard.putNumber("Launcher/Current", launcherRoller.getOutputCurrent());
     SmartDashboard.putNumber("Launcher/Current2", launcherRoller2.getOutputCurrent());
@@ -230,7 +230,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     SmartDashboard.putNumber(
         "Feeder/Voltage", feederRoller.getAppliedOutput() * feederRoller.getBusVoltage());
     SmartDashboard.putNumber("Feeder/Velocity", feederEncoder.getVelocity());
-    SmartDashboard.putBoolean("Launcher Enabled", launcherEnabled);
+    SmartDashboard.putBoolean("Launcher/Enabled", launcherEnabled);
     SmartDashboard.putNumber("Distance to Hub", drive.getDistanceToHub());
 
     SmartDashboard.putNumber("Launcher/MotorTemp", launcherRoller.getMotorTemperature());
