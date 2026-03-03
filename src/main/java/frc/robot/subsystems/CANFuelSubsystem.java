@@ -210,30 +210,40 @@ public class CANFuelSubsystem extends SubsystemBase {
     intakeRoller.setVoltage(intakeGoal);
 
     // Update SmartDashboard values for monitoring
-    SmartDashboard.putNumber("Feeder Goal", feederGoal);
-    SmartDashboard.putNumber("Feeder Set Voltage", feederVoltage);
-    SmartDashboard.putNumber("Launcher Goal", launcherGoal);
-    SmartDashboard.putNumber("Intake Goal", intakeGoal);
+    SmartDashboard.putNumber("Feeder/Goal", feederGoal);
+    SmartDashboard.putNumber("Feeder/Set Voltage", feederVoltage);
+    SmartDashboard.putNumber("Launcher/Goal", launcherGoal);
+    SmartDashboard.putNumber("Intake/Goal", intakeGoal);
 
-    SmartDashboard.putNumber("LauncherCurrent", launcherRoller.getOutputCurrent());
-    SmartDashboard.putNumber("LauncherCurrent2", launcherRoller2.getOutputCurrent());
-    SmartDashboard.putNumber("IntakeCurrent", intakeRoller.getOutputCurrent());
+    SmartDashboard.putNumber("Launcher/Current", launcherRoller.getOutputCurrent());
+    SmartDashboard.putNumber("Launcher2/Current", launcherRoller2.getOutputCurrent());
+    SmartDashboard.putNumber("Intake/Current", intakeRoller.getOutputCurrent());
     SmartDashboard.putNumber(
-        "LauncherVoltage", launcherRoller.getAppliedOutput() * launcherRoller.getBusVoltage());
+        "Launcher/Voltage", launcherRoller.getAppliedOutput() * launcherRoller.getBusVoltage());
     SmartDashboard.putNumber(
-        "LauncherVoltage2", launcherRoller2.getAppliedOutput() * launcherRoller2.getBusVoltage());
-    SmartDashboard.putNumber(
-        "IntakeVoltage", intakeRoller.getAppliedOutput() * intakeRoller.getBusVoltage());
-    SmartDashboard.putNumber("LauncherVelocity", launcherEncoder.getVelocity());
-    SmartDashboard.putNumber("LauncherVelocity2", launcherEncoder2.getVelocity());
-    SmartDashboard.putNumber("IntakeVelocity", intakeEncoder.getVelocity());
+        "Launcher2/Voltage", launcherRoller2.getAppliedOutput() * launcherRoller2.getBusVoltage());
+	SmartDashboard.putNumber(
+        "Intake/Voltage", intakeRoller.getAppliedOutput() * intakeRoller.getBusVoltage());
+    SmartDashboard.putNumber("Launcher/Velocity", launcherEncoder.getVelocity());
+    SmartDashboard.putNumber("Launcher2/Velocity", launcherEncoder2.getVelocity());
+    SmartDashboard.putNumber("Intake/Velocity", intakeEncoder.getVelocity());
 
-    SmartDashboard.putNumber("FeederCurrent", feederRoller.getOutputCurrent());
+    SmartDashboard.putNumber("Feeder/Current", feederRoller.getOutputCurrent());
     SmartDashboard.putNumber(
-        "FeederVoltage", feederRoller.getAppliedOutput() * feederRoller.getBusVoltage());
-    SmartDashboard.putNumber("FeederVelocity", feederEncoder.getVelocity());
-    SmartDashboard.putBoolean("Launcher Enabled", launcherEnabled);
+        "Feeder/Voltage", feederRoller.getAppliedOutput() * feederRoller.getBusVoltage());
+    SmartDashboard.putNumber("Feeder/Velocity", feederEncoder.getVelocity());
+    SmartDashboard.putBoolean("Launcher/Enabled", launcherEnabled);
     SmartDashboard.putNumber("Distance to Hub", drive.getDistanceToHub());
+
+    SmartDashboard.putNumber("Launcher/MotorTemp", launcherRoller.getMotorTemperature());
+    SmartDashboard.putNumber("Launcher2/MotorTemp", launcherRoller2.getMotorTemperature());
+    SmartDashboard.putNumber("Feeder/MotorTemp", feederRoller.getMotorTemperature());
+    SmartDashboard.putNumber("Intake/MotorTemp", intakeRoller.getMotorTemperature());
+
+    SmartDashboard.putNumber("Launcher/BusVoltage", launcherRoller.getBusVoltage());
+    SmartDashboard.putNumber("Launcher2/BusVoltage", launcherRoller2.getBusVoltage());
+    SmartDashboard.putNumber("Feeder/BusVoltage", feederRoller.getBusVoltage());
+    SmartDashboard.putNumber("Intake/BusVoltage", intakeRoller.getBusVoltage());
   }
 
   /**
