@@ -8,13 +8,8 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.LEDPattern;
@@ -25,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
@@ -32,7 +28,7 @@ import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
-import java.util.Optional;
+import java.util.Set;
 import swervelib.SwerveInputStream;
 
 /**
@@ -57,9 +53,12 @@ public class RobotContainer {
   private final SwerveSubsystem drivebase =
       new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
 
-  private final CANFuelSubsystem ballSubsystem = new CANFuelSubsystem(drivebase);
-
   private final LEDSubsystem led = new LEDSubsystem();
+
+  // Helper functions for this year's game.
+  private final Game game = new Game(drivebase);
+
+  private final CANFuelSubsystem ballSubsystem = new CANFuelSubsystem(game);
 
   // Define objects for other subsystems here
 
@@ -142,7 +141,8 @@ public class RobotContainer {
       drivebase.diamondDriveCommand(driveAngularVelocity).withName("Diamond Drive");
 
   Command aimHubDrive =
-      drivebase.aimHubDriveCommand(driveAngularVelocity).withName("Aim Hub Drive");
+      new DeferredCommand(() -> game.aimHubDriveCommand(driveAngularVelocity), Set.of(drivebase))
+          .withName("Aim Hub Drive");
 
   private SendableChooser<Command> autoChooser;
 
@@ -263,67 +263,6 @@ public class RobotContainer {
     led.setPattern(pattern);
   }
 
-  private static final double HUB_MIN_RADIUS_M = Units.feetToMeters(4.0);
-  private static final double HUB_MAX_RADIUS_M = Units.feetToMeters(10.0);
-  private static final double HUB_HEADING_TOL_DEG = 8.0;
-
-  private Pose2d getHubCenterPose() {
-    var alliance = DriverStation.getAlliance();
-    if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
-      return Constants.DriveConstants.RED_HUB_CENTER;
-    }
-    return Constants.DriveConstants.BLUE_HUB_CENTER;
-  }
-
-  /**
-   * Returns true if the robot is within the defined distance from the hub and aimed towards the
-   * hub.
-   */
-  public boolean isRobotReadyAtHub() {
-    Pose2d robotPose = drivebase.getPose();
-    Pose2d hubPose = getHubCenterPose();
-
-    if (!isRobotOnAllianceSideOfHub(robotPose, hubPose)) {
-      return false;
-    }
-
-    Translation2d hubToRobot = robotPose.getTranslation().minus(hubPose.getTranslation());
-    double dist = hubToRobot.getNorm();
-    if (dist < HUB_MIN_RADIUS_M || dist > HUB_MAX_RADIUS_M) {
-      return false;
-    }
-    Rotation2d desiredHeading = hubToRobot.getAngle(); // direction robot should face
-    Rotation2d currentHeading = robotPose.getRotation(); // robot’s current yaw
-
-    double headingErrorDeg = Math.abs(desiredHeading.minus(currentHeading).getDegrees());
-    return headingErrorDeg <= HUB_HEADING_TOL_DEG;
-  }
-
-  private boolean isRobotOnAllianceSideOfHub(Pose2d robotPose, Pose2d hubPose) {
-    Optional<Alliance> alliance = DriverStation.getAlliance();
-    if (alliance.isEmpty()) {
-      return false;
-    }
-
-    double robotX = robotPose.getX();
-    double hubX = hubPose.getX();
-
-    if (alliance.get() == Alliance.Blue) {
-      return robotX < hubX;
-    } else {
-      return robotX > hubX;
-    }
-  }
-
-  public Translation2d getHubToRobotVector() {
-    Pose2d robotPose = drivebase.getPose();
-    return robotPose.getTranslation().minus(getHubCenterPose().getTranslation());
-  }
-
-  public Rotation2d getHubToRobotAngle() {
-    return getHubToRobotVector().getAngle();
-  }
-
   /** Set the LEDs to show robot status. */
   public void setLedStatus() {
     LEDPattern desired;
@@ -348,7 +287,7 @@ public class RobotContainer {
       } else {
         desired = LEDPattern.solid(Color.kGreen);
 
-        if (isRobotReadyAtHub()) {
+        if (game.isRobotReadyAtHub()) {
           desired = LEDPattern.solid(Color.kOrange);
         }
       }
@@ -394,6 +333,7 @@ public class RobotContainer {
 
   /** This should be called periodically from the main {@link Robot} class. */
   public void periodic() {
+    game.periodic();
     setLedStatus();
   }
 }

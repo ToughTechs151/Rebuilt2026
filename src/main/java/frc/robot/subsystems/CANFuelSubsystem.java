@@ -19,14 +19,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.FuelConstants;
-import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.Game;
 import frc.robot.util.TunableNumber;
 
 /**
  * Subsystem to control the fuel mechanisms on the robot including the intake, feeder and launcher.
  */
 public class CANFuelSubsystem extends SubsystemBase {
-  private final SwerveSubsystem drive;
+  private final Game game;
   private final SparkMax feederRoller;
   private final SparkMax launcherRoller;
   private final SparkMax launcherRoller2;
@@ -71,8 +71,8 @@ public class CANFuelSubsystem extends SubsystemBase {
       new TunableNumber("Launcher Enable Table", FuelConstants.ENABLE_LAUNCH_TABLE);
 
   /** Creates a new CANFuelSubsystem. */
-  public CANFuelSubsystem(SwerveSubsystem drive) {
-    this.drive = drive;
+  public CANFuelSubsystem(Game game) {
+    this.game = game;
 
     limiter = new SlewRateLimiter(FuelConstants.RATE_LIMIT);
 
@@ -156,7 +156,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     loadPidfTunableNumbers();
     launcherEnabled = true;
     if (enableLaunchTable.get() > 0.0) {
-      launcherGoal = FuelConstants.LAUNCH_TABLE.get(drive.getDistanceToHub())[1];
+      launcherGoal = FuelConstants.LAUNCH_TABLE.get(game.getDistanceToHub())[1];
     } else {
       launcherGoal = launcherRpm.get();
     }
@@ -233,7 +233,6 @@ public class CANFuelSubsystem extends SubsystemBase {
         "Feeder/Voltage", feederRoller.getAppliedOutput() * feederRoller.getBusVoltage());
     SmartDashboard.putNumber("Feeder/Velocity", feederEncoder.getVelocity());
     SmartDashboard.putBoolean("Launcher/Enabled", launcherEnabled);
-    SmartDashboard.putNumber("Distance to Hub", drive.getDistanceToHub());
 
     SmartDashboard.putNumber("Launcher/MotorTemp", launcherRoller.getMotorTemperature());
     SmartDashboard.putNumber("Launcher2/MotorTemp", launcherRoller2.getMotorTemperature());

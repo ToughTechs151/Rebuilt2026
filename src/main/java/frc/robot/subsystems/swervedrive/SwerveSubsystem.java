@@ -271,6 +271,38 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
+   * Command to drive with the robot aimed at a pose.
+   *
+   * @param targetPose The target pose to aim at.
+   * @return A {@link Command} which will run the alignment.
+   */
+  public Command aimAtPoseCommand(Supplier<ChassisSpeeds> velocity, Pose2d targetPose) {
+    return run(
+        () -> {
+          Rotation2d currentHeading = swerveDrive.getOdometryHeading();
+
+          Translation2d relativeTrl = targetPose.relativeTo(swerveDrive.getPose()).getTranslation();
+
+          Rotation2d target =
+              new Rotation2d(relativeTrl.getX(), relativeTrl.getY())
+                  .plus(currentHeading)
+                  .plus(Rotation2d.fromDegrees(180));
+
+          double omegaRadiansPerSecond =
+              swerveDrive.swerveController.headingCalculate(
+                  currentHeading.getRadians(), target.getRadians());
+
+          ChassisSpeeds speeds =
+              new ChassisSpeeds(
+                  velocity.get().vxMetersPerSecond,
+                  velocity.get().vyMetersPerSecond,
+                  omegaRadiansPerSecond);
+
+          swerveDrive.driveFieldOriented(speeds);
+        });
+  }
+
+  /**
    * Get the path follower with events.
    *
    * @param pathName PathPlanner path name.
@@ -419,36 +451,6 @@ public class SwerveSubsystem extends SubsystemBase {
         3.0,
         5.0,
         3.0);
-  }
-
-  /** Command to drive with the launcher aimed at the alliance hub. */
-  public Command aimHubDriveCommand(Supplier<ChassisSpeeds> velocity) {
-    return run(
-        () -> {
-          Pose2d hubTarget =
-              isRedAlliance() ? DriveConstants.RED_HUB_CENTER : DriveConstants.BLUE_HUB_CENTER;
-
-          Rotation2d currentHeading = swerveDrive.getOdometryHeading();
-
-          Translation2d relativeTrl = hubTarget.relativeTo(swerveDrive.getPose()).getTranslation();
-
-          Rotation2d target =
-              new Rotation2d(relativeTrl.getX(), relativeTrl.getY())
-                  .plus(currentHeading)
-                  .plus(Rotation2d.fromDegrees(180));
-
-          double omegaRadiansPerSecond =
-              swerveDrive.swerveController.headingCalculate(
-                  currentHeading.getRadians(), target.getRadians());
-
-          ChassisSpeeds speeds =
-              new ChassisSpeeds(
-                  velocity.get().vxMetersPerSecond,
-                  velocity.get().vyMetersPerSecond,
-                  omegaRadiansPerSecond);
-
-          swerveDrive.driveFieldOriented(speeds);
-        });
   }
 
   /** Diamond Drive for going on the ramp. Finds the closest 45 degree angle. */
@@ -690,17 +692,6 @@ public class SwerveSubsystem extends SubsystemBase {
   public boolean isRedAlliance() {
     var alliance = DriverStation.getAlliance();
     return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
-  }
-
-  /**
-   * Calculate the distance to the alliance hub.
-   *
-   * @return The distance to the alliance hub in meters.
-   */
-  public double getDistanceToHub() {
-    Pose2d hubPos =
-        isRedAlliance() ? DriveConstants.RED_HUB_CENTER : DriveConstants.BLUE_HUB_CENTER;
-    return getPose().getTranslation().getDistance(hubPos.getTranslation());
   }
 
   /**
