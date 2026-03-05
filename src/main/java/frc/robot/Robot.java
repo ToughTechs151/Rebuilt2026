@@ -4,13 +4,9 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Seconds;
-
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.sim.RobotModel;
@@ -26,9 +22,6 @@ public class Robot extends TimedRobot {
   private RobotContainer robotContainer;
   private DataLogging datalog;
   private Timer disabledTimer;
-  private boolean allianceSet = false;
-  private LEDPattern redBreathe = LEDPattern.solid(Color.kRed).breathe(Seconds.of(4.0));
-  private LEDPattern blueBreathe = LEDPattern.solid(Color.kBlue).breathe(Seconds.of(4.0));
 
   /**
    * {@code robotInit} runs when the robot first starts up. It is used to create the robot
@@ -70,6 +63,8 @@ public class Robot extends TimedRobot {
     // for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
 
+    robotContainer.periodic();
+
     // Must be at the end of robotPeriodic
     datalog.periodic();
   }
@@ -81,29 +76,16 @@ public class Robot extends TimedRobot {
     if (isSimulation() && simModel != null) {
       simModel.reset();
     }
-    robotContainer.setLeds(LEDPattern.solid(Color.kGray));
     robotContainer.setMotorBrake(true);
     disabledTimer.reset();
     disabledTimer.start();
 
     CommandScheduler.getInstance().cancelAll();
     this.robotContainer.disableSubsystems();
-
-    allianceSet = false;
   }
 
   @Override
   public void disabledPeriodic() {
-
-    var alliance = DriverStation.getAlliance();
-    if (!allianceSet && alliance.isPresent()) {
-      if (alliance.get() == DriverStation.Alliance.Red) {
-        robotContainer.setLeds(redBreathe);
-      } else {
-        robotContainer.setLeds(blueBreathe);
-      }
-      allianceSet = true;
-    }
 
     // Add code to run repeatedly while disabled.
     if (disabledTimer.hasElapsed(Constants.DriveConstants.WHEEL_LOCK_TIME)) {
@@ -175,7 +157,6 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     datalog.startLoopTime();
     // Add code to run repeatedly during Teleop mode.
-    robotContainer.setLedStatus();
   }
 
   /** This function is called once at the start of test mode. */
