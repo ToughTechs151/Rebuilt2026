@@ -275,15 +275,23 @@ public class RobotContainer {
     return Constants.DriveConstants.BLUE_HUB_CENTER;
   }
 
-  public boolean isRobotOrangeReadyAtHub() {
+  /**
+   * Returns true if the robot is within the defined distance from the hub and aimed towards the
+   * hub.
+   */
+  public boolean isRobotReadyAtHub() {
     Pose2d robotPose = drivebase.getPose();
     Pose2d hubPose = getHubCenterPose();
 
-    if (!isRobotOnAllianceSideOfHub(robotPose, hubPose)) return false;
+    if (!isRobotOnAllianceSideOfHub(robotPose, hubPose)) {
+      return false;
+    }
 
     Translation2d hubToRobot = robotPose.getTranslation().minus(hubPose.getTranslation());
     double dist = hubToRobot.getNorm();
-    if (dist < HUB_MIN_RADIUS_M || dist > HUB_MAX_RADIUS_M) return false;
+    if (dist < HUB_MIN_RADIUS_M || dist > HUB_MAX_RADIUS_M) {
+      return false;
+    }
     Rotation2d desiredHeading = hubToRobot.getAngle(); // direction robot should face
     Rotation2d currentHeading = robotPose.getRotation(); // robot’s current yaw
 
@@ -293,7 +301,9 @@ public class RobotContainer {
 
   private boolean isRobotOnAllianceSideOfHub(Pose2d robotPose, Pose2d hubPose) {
     Optional<Alliance> alliance = DriverStation.getAlliance();
-    if (alliance.isEmpty()) return false;
+    if (alliance.isEmpty()) {
+      return false;
+    }
 
     double robotX = robotPose.getX();
     double hubX = hubPose.getX();
@@ -318,32 +328,38 @@ public class RobotContainer {
   public void setLedStatus() {
     LEDPattern desired;
 
-    Optional<Alliance> alliance = DriverStation.getAlliance();
-    if (alliance.isPresent() && alliance.get() == Alliance.Red) {
-      desired = LEDPattern.solid(Color.kRed);
-    } else if (alliance.isPresent() && alliance.get() == Alliance.Blue) {
-      desired = LEDPattern.solid(Color.kBlue);
-    } else {
-      desired = LEDPattern.solid(Color.kWhite);
-    }
-
-    boolean hubActive = HubTracker.isActive();
-
-    if (!hubActive) {
-      desired = LEDPattern.solid(Color.kPurple);
-    } else {
-      desired = LEDPattern.solid(Color.kGreen);
-
-      if (isRobotOrangeReadyAtHub()) {
-        desired = LEDPattern.solid(Color.kOrange);
+    if (DriverStation.isDisabled()) {
+      var alliance = DriverStation.getAlliance();
+      if (alliance.isPresent()) {
+        if (alliance.get() == DriverStation.Alliance.Red) {
+          desired = LEDPattern.solid(Color.kRed).breathe(Seconds.of(4.0));
+        } else {
+          desired = LEDPattern.solid(Color.kBlue).breathe(Seconds.of(4.0));
+        }
+      } else {
+        desired = LEDPattern.solid(Color.kGray);
       }
-    }
+    } else {
 
-    var timeRemaining = HubTracker.timeRemainingInCurrentShift();
-    double timeRemainingSeconds = timeRemaining.isPresent() ? timeRemaining.get().in(Seconds) : 0.0;
+      boolean hubActive = HubTracker.isActive();
 
-    if (timeRemainingSeconds < 5.0 && timeRemainingSeconds > 0.0) {
-      desired = desired.blink(Seconds.of(0.5));
+      if (!hubActive) {
+        desired = LEDPattern.solid(Color.kPurple);
+      } else {
+        desired = LEDPattern.solid(Color.kGreen);
+
+        if (isRobotReadyAtHub()) {
+          desired = LEDPattern.solid(Color.kOrange);
+        }
+      }
+
+      var timeRemaining = HubTracker.timeRemainingInCurrentShift();
+      double timeRemainingSeconds =
+          timeRemaining.isPresent() ? timeRemaining.get().in(Seconds) : 0.0;
+
+      if (timeRemainingSeconds < 5.0 && timeRemainingSeconds > 0.0) {
+        desired = desired.blink(Seconds.of(0.5));
+      }
     }
 
     led.setPattern(desired);
@@ -374,5 +390,10 @@ public class RobotContainer {
    */
   public CANFuelSubsystem getBallSubsystem() {
     return ballSubsystem;
+  }
+
+  /** This should be called periodically from the main {@link Robot} class. */
+  public void periodic() {
+    setLedStatus();
   }
 }
