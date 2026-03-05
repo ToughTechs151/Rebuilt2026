@@ -11,9 +11,13 @@ import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.util.List;
+import java.util.Optional;
+
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -23,6 +27,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import frc.robot.util.LUT;
 import swervelib.math.Matter;
 
@@ -268,4 +274,34 @@ public final class Constants {
     public static final double LAUNCH_RATIO =
         0.25; // Ratio of ball exit velocity launcher to wheel edge speed
   }
+
+  public static final class FieldConstants {
+    private FieldConstants() {
+        throw new IllegalStateException("FieldConstants Utility Class");
+    }
+
+    // static vars
+    public static final AprilTagFieldLayout FIELD_LAYOUT;
+    public static final List<Pose2d> HUB_POSITIONS;
+
+    
+    static {
+        // field layout
+        FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
+
+        // Extract the 2D poses directly. 
+        Pose2d pose9At2d = FIELD_LAYOUT.getTagPose(9).get().toPose2d();
+        Pose2d pose10At2d = FIELD_LAYOUT.getTagPose(10).get().toPose2d();
+        Pose2d pose25At2d = FIELD_LAYOUT.getTagPose(25).get().toPose2d();
+        Pose2d pose26At2d = FIELD_LAYOUT.getTagPose(26).get().toPose2d();
+
+        // list of poses
+        HUB_POSITIONS = List.of(
+            pose9At2d,  // 9
+            pose10At2d, // 10
+            pose25At2d, // 25
+            pose26At2d  // 26
+        );
+    }
+}
 }
