@@ -1,10 +1,29 @@
 package frc.sim;
 
-/** Constants utility class for the claw simulation. */
+import edu.wpi.first.math.util.Units;
+import frc.robot.Constants.HopperConstants;
+
+/** Constants utility class for the hopper simulation. */
 public final class Constants {
 
   private Constants() {
     throw new IllegalStateException("Utility class");
+  }
+
+  /** Hopper simulation constants. */
+  public static final class HopperSim {
+    private HopperSim() {
+      throw new IllegalStateException("HopperSim Utility Class");
+    }
+
+    public static final double HOPPER_MASS_KG = 3.5;
+    public static final double HOPPER_LENGTH_INCHES = 12;
+    public static final double HOPPER_LENGTH_METERS = Units.inchesToMeters(HOPPER_LENGTH_INCHES);
+    public static final double START_ANGLE_RADS = HopperConstants.MIN_ANGLE_RADS;
+    public static final int ENCODER_PRR =
+        4096; // Only used to simulate noise in position measurement
+    public static final double ENCODER_DISTANCE_PER_PULSE =
+        2.0 * Math.PI / ENCODER_PRR / HopperConstants.GEAR_RATIO;
   }
 
   /** Drivetrain simulation constants. */

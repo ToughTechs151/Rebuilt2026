@@ -55,6 +55,9 @@ public final class Constants {
   /** Set to true to show extended logging data for the drive subsystem. */
   public static final boolean SD_SHOW_DRIVE_EXTENDED_LOGGING_DATA = true;
 
+  /** Set to true to show extended logging data for the hopper subsystem. */
+  public static final boolean SD_SHOW_HOPPER_EXTENDED_LOGGING_DATA = true;
+
   /** Set to true to enable loop timing logging. */
   public static final boolean LOOP_TIMING_LOG = false;
 
@@ -260,5 +263,45 @@ public final class Constants {
     public static final double TIME_BETWEEN_EJECTS = 0.3;
     public static final double LAUNCH_RATIO =
         0.375; // Ratio of ball exit velocity launcher to wheel edge speed
+  }
+
+  /** Constants used for the Hopper subsystem. */
+  public static final class HopperConstants {
+
+    private HopperConstants() {
+      throw new IllegalStateException("HopperConstants Utility Class");
+    }
+
+    public static final int MOTOR_PORT = 16;
+    public static final int CURRENT_LIMIT = 40;
+    public static final boolean INVERTED = true;
+
+    // Constants tunable through TunableNumbers
+    public static final double HOPPER_KP = 6.0;
+    public static final double HOPPER_KS = 0.0;
+    public static final double HOPPER_KG = 0.1;
+    public static final double HOPPER_KV_VOLTS_PER_RAD_PER_SEC = 3.5;
+    public static final double HOPPER_MAX_VELOCITY_RAD_PER_SEC = Units.degreesToRadians(180.0);
+    public static final double HOPPER_MAX_ACCELERATION_RAD_PER_SEC2 = Units.degreesToRadians(540.0);
+
+    public static final double GEAR_RATIO = 75 * 30 / 12.0;
+    public static final double HOPPER_RAD_PER_ENCODER_ROTATION = 2.0 * Math.PI / GEAR_RATIO;
+    public static final double RPM_TO_RAD_PER_SEC = HOPPER_RAD_PER_ENCODER_ROTATION / 60;
+
+    // Hopper positions.  Horizontal = 0 radians. Assume hopper starts at lowest (rest) position
+    public static final double HOPPER_LEVEL1_RADS = Units.degreesToRadians(18.0);
+    public static final double HOPPER_LEVEL2_AND_LEVEL3_RADS = Units.degreesToRadians(42.0);
+    public static final double HOPPER_SAFE_ANGLE_RADS = Units.degreesToRadians(42.0);
+    public static final double HOPPER_LEVEL4_RADS = Units.degreesToRadians(65.0);
+    public static final double HOPPER_ALGAE_RADS = Units.degreesToRadians(178.0);
+    public static final double HOPPER_PROCESSOR_RADS = Units.degreesToRadians(178.0);
+    public static final double HOPPER_OFFSET_RADS = Units.degreesToRadians(18.0);
+    public static final double HOPPER_UNSAFE_RADS = Units.degreesToRadians(35.0);
+    public static final double MIN_ANGLE_RADS = Units.degreesToRadians(18.0);
+    public static final double MAX_ANGLE_RADS = Units.degreesToRadians(180.0);
+    public static final double POS_INCREMENT = Units.degreesToRadians(1.0); // For small adjustments
+    public static final double POSITION_TOLERANCE = Units.degreesToRadians(4.0);
+    public static final double VELOCITY_TOLERANCE = Units.degreesToRadians(10.0);
+    public static final double ABSOLUTE_OFFSET_DEGREES = 222.6;
   }
 }
