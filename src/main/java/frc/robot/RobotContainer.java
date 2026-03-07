@@ -100,7 +100,7 @@ public class RobotContainer {
   // Commands to shift robot position at low speed using POV
   SwerveInputStream shiftForwardRobotOriented =
       SwerveInputStream.of(drivebase.getSwerveDrive(), () -> DriveConstants.POV_SPEED, () -> 0.0)
-          .withControllerRotationAxis(() -> 0.0)
+          .withControllerRotationAxis(() -> -DriverStation.getStickAxis(0, 4))
           .robotRelative(true)
           .allianceRelativeControl(false);
 
