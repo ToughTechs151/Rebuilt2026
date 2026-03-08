@@ -49,13 +49,15 @@ public class HopperModel implements AutoCloseable {
   private SparkAbsoluteEncoderSim absoluteEncoderSim;
 
   // Create a Mechanism2d visualization of the hopper.
-  private final Mechanism2d mech2d = new Mechanism2d(1, 2);
-  private final MechanismRoot2d mech2dRoot = mech2d.getRoot("Hopper Root", 0.5, 0.0);
-  private final MechanismLigament2d hopperMech2d =
-      mech2dRoot.append(
+  private final Mechanism2d mech2d = new Mechanism2d(40, 20);
+  private final MechanismRoot2d mechArmPivot = mech2d.getRoot("HopperPivot", 20, 10);
+  private final MechanismLigament2d mechArmTower =
+      mechArmPivot.append(new MechanismLigament2d("HopperTower", 10, -90));
+  private final MechanismLigament2d mechArm =
+      mechArmPivot.append(
           new MechanismLigament2d(
               "Hopper",
-              HopperSim.HOPPER_LENGTH_METERS,
+              Units.metersToInches(HopperSim.HOPPER_LENGTH_METERS),
               Units.radiansToDegrees(hopperSim.getAngleRads()) - 90,
               6,
               new Color8Bit(Color.kYellow)));
@@ -69,6 +71,7 @@ public class HopperModel implements AutoCloseable {
     // Put Mechanism 2d to SmartDashboard
     // To view the Hopper visualization, select Network Tables -> SmartDashboard -> Hopper Sim
     SmartDashboard.putData("Hopper Sim", mech2d);
+    mechArmTower.setColor(new Color8Bit(Color.kBlue));
   }
 
   /** Initialize the hopper simulation. */
@@ -96,7 +99,7 @@ public class HopperModel implements AutoCloseable {
             + Units.degreesToRotations(HopperConstants.ABSOLUTE_OFFSET_DEGREES));
 
     // Update hopper visualization with angle
-    hopperMech2d.setAngle(Units.radiansToDegrees(hopperSim.getAngleRads()) - 90);
+    mechArm.setAngle(Units.radiansToDegrees(hopperSim.getAngleRads()));
   }
 
   /** Return the simulated hopper motor current. */
@@ -106,6 +109,8 @@ public class HopperModel implements AutoCloseable {
 
   @Override
   public void close() {
-    hopperMech2d.close();
+    mech2d.close();
+    mechArmPivot.close();
+    mechArm.close();
   }
 }
