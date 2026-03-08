@@ -722,6 +722,55 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
+   * Creates a command to drive diagonally in front of the nearest hub.
+   * The target is exactly a 7-foot hypotenuse away.
+   */
+  public Command driveHubCommand() {
+    // Wrap the entire logic in Commands.defer so the math happens on button press, not on boot!
+    return Commands.defer(() -> {
+      
+      var nearestPose = this.getPose().nearest(FieldConstants.HUB_POSITIONS);
+
+      // Set 7ft diagonal offset at 45 degrees
+      double offset = edu.wpi.first.math.util.Units.feetToMeters(7.0);
+      double angleRad = Math.toRadians(45.0); 
+
+      // Calculate translation components
+      double xShift = offset * Math.cos(angleRad);
+      double yShiftMagnitude = offset * Math.sin(angleRad);
+
+      // Shift outwards towards the side walls based on field position and tag orientation
+      boolean isTopSide = nearestPose.getY() > 4.11;
+      boolean facesPositiveX = Math.abs(nearestPose.getRotation().getDegrees()) < 90;
+
+      double yDirectionMultiplier;
+      if (facesPositiveX) {
+          yDirectionMultiplier = isTopSide ? 1.0 : -1.0;
+      } else {
+          yDirectionMultiplier = isTopSide ? -1.0 : 1.0;
+      }
+
+      double yShift = yShiftMagnitude * yDirectionMultiplier;
+      var shift = new Translation2d(xShift, yShift);
+
+      // Apply shift relative to the tag and rotate 180 to face it
+      var targetPose =
+          new Pose2d(
+              nearestPose.getTranslation().plus(shift.rotateBy(nearestPose.getRotation())),
+              nearestPose.getRotation().minus(new Rotation2d(Math.toRadians(180))));
+              
+      // Log and push to dashboard
+      DataLogManager.log("Drive to Hub Target: " + targetPose);
+      SmartDashboard.putNumber("Drive to Hub X", targetPose.getX());
+      SmartDashboard.putNumber("Drive to Hub Y", targetPose.getY());
+      SmartDashboard.putNumber("Drive to Hub Rot", targetPose.getRotation().getDegrees());
+
+      return this.driveToPose(targetPose);
+
+    }, java.util.Set.of(this)); 
+  }
+
+  /**
    * Sets the drive motors to brake/coast mode.
    *
    * @param brake True to set motors to brake mode, false for coast.

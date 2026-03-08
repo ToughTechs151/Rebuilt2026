@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import java.io.File;
+import java.util.Set;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -28,7 +31,6 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import java.io.File;
 import swervelib.SwerveInputStream;
 
 /**
@@ -140,6 +142,8 @@ public class RobotContainer {
   Command aimHubDrive =
       drivebase.aimHubDriveCommand(driveAngularVelocity).withName("Aim Hub Drive");
 
+  Command driveToHub = drivebase.driveHubCommand().withName("Drive to Hub");
+
   private SendableChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -153,6 +157,7 @@ public class RobotContainer {
 
     // Named Commands for Autos
     NamedCommands.registerCommand("Launch Ball", ballSubsystem.launchCommand().withTimeout(5.0));
+    NamedCommands.registerCommand("Align To Hub", drivebase.driveHubCommand());
 
     // Setup the auto command chooser using the PathPlanner autos
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -191,6 +196,9 @@ public class RobotContainer {
     driverController.povDown().whileTrue(shiftBack);
     driverController.povRight().whileTrue(shiftRight);
     driverController.povLeft().whileTrue(shiftLeft);
+
+    // Drives to Hub when a is pressed on the driver controller
+    driverController.a().whileTrue(driveToHub);
 
     // Zero the gyro when 'start' is pressed on the driver's controller
     driverController
@@ -289,50 +297,5 @@ public class RobotContainer {
    */
   public CANFuelSubsystem getBallSubsystem() {
     return ballSubsystem;
-  }
-
-  /**
-   * Creates a command to drive diagonally in front of the nearest hub.
-   * The target is exactly a 7-foot hypotenuse away.
-   */
-  private Command createDriveHubCommand() {
-    // Find nearest hub face
-    var nearestPose = drivebase.getPose().nearest(FieldConstants.HUB_POSITIONS);
-
-    // Set 7ft diagonal offset at 45 degrees
-    double offset = edu.wpi.first.math.util.Units.feetToMeters(7.0);
-    double angleRad = Math.toRadians(45.0); 
-
-    // Calculate translation components
-    double xShift = offset * Math.cos(angleRad);
-    double yShiftMagnitude = offset * Math.sin(angleRad);
-
-    // Shift outwards towards the side walls based on field position and tag orientation
-    boolean isTopSide = nearestPose.getY() > 4.11;
-    boolean facesPositiveX = Math.abs(nearestPose.getRotation().getDegrees()) < 90;
-
-    double yDirectionMultiplier;
-    if (facesPositiveX) {
-        yDirectionMultiplier = isTopSide ? 1.0 : -1.0;
-    } else {
-        yDirectionMultiplier = isTopSide ? -1.0 : 1.0;
-    }
-
-    double yShift = yShiftMagnitude * yDirectionMultiplier;
-    var shift = new Translation2d(xShift, yShift);
-
-    // Apply shift relative to the tag and rotate 180 to face it
-    var targetPose =
-        new Pose2d(
-            nearestPose.getTranslation().plus(shift.rotateBy(nearestPose.getRotation())),
-            nearestPose.getRotation().minus(new Rotation2d(Math.toRadians(180))));
-            
-    // Log and push to dashboard
-    DataLogManager.log("Drive to Hub Target: " + targetPose);
-    SmartDashboard.putNumber("Drive to Hub X", targetPose.getX());
-    SmartDashboard.putNumber("Drive to Hub Y", targetPose.getY());
-    SmartDashboard.putNumber("Drive to Hub Rot", targetPose.getRotation().getDegrees());
-
-    return drivebase.driveToPose(targetPose);
   }
 }
