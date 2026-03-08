@@ -284,14 +284,15 @@ public class RobotContainer {
     } else {
 
       boolean hubActive = HubTracker.isActive();
+      boolean hubActiveNext = HubTracker.isActiveNext();
 
       if (!hubActive) {
-        desired = LEDPattern.solid(Color.kPurple);
+        desired = LEDPattern.solid(Color.kDarkViolet);
       } else {
         desired = LEDPattern.solid(Color.kGreen);
 
         if (game.isRobotReadyAtHub()) {
-          desired = LEDPattern.solid(Color.kOrange);
+          desired = LEDPattern.solid(Color.kDarkOrange);
         }
       }
 
@@ -299,7 +300,8 @@ public class RobotContainer {
       double timeRemainingSeconds =
           timeRemaining.isPresent() ? timeRemaining.get().in(Seconds) : 0.0;
 
-      if (timeRemainingSeconds < 5.0 && timeRemainingSeconds > 0.0) {
+      if ((timeRemainingSeconds < 5.0 && timeRemainingSeconds > 0.0)
+          && (hubActive != hubActiveNext)) {
         desired = desired.blink(Seconds.of(0.5));
       }
     }
