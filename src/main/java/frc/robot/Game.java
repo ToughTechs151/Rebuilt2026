@@ -1,17 +1,20 @@
 package frc.robot;
 
+import java.util.Optional;
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import java.util.Optional;
-import java.util.function.Supplier;
 
 /** The Game class contains functions specific to the game. */
 public class Game {
@@ -129,5 +132,41 @@ public class Game {
   public void periodic() {
     SmartDashboard.putNumber("Hub/Distance", getDistanceToHub());
     SmartDashboard.putNumber("Hub/Angle", getAngleToHub().getDegrees());
+  }
+
+  /**
+   * Creates a command to drive diagonally in front of the nearest hub.
+   * The target is exactly a 7-foot hypotenuse away.
+   */
+  public Command driveHubCommand() {
+    // Ensures everything runs at run time, instead of after
+    return Commands.defer(() -> {
+      // Pose of robot at hub
+      Pose2d hubCenter = getHubCenterPose();
+
+      // Offsets for robot when launching and approaching
+      double launchOffset = Units.feetToMeters(7.0);
+      double approachOffset = Units.feetToMeters(9.0);
+      Rotation2d hubAngle = getAngleToHub();
+
+      // Movement for robot to shooting and approach location
+      Translation2d launchTranslation = new Translation2d(launchOffset, hubAngle);
+      Translation2d approachTranslation = new Translation2d(approachOffset, hubAngle);
+      Rotation2d targetRotation = getAngleToHub();
+
+      // Actual robot positions
+      Pose2d launchPose = new Pose2d(hubCenter.getTranslation().plus(launchTranslation), targetRotation);
+      Pose2d approachPose = new Pose2d(hubCenter.getTranslation().plus(approachTranslation), targetRotation);
+              
+      // Log and push to dashboard
+      DataLogManager.log("Drive to Hub Approach: " + approachPose);
+      DataLogManager.log("Drive to Hub Launch: " + launchPose);
+      SmartDashboard.putNumber("Drive to Hub X", launchPose.getX());
+      SmartDashboard.putNumber("Drive to Hub Y", launchPose.getY());
+      SmartDashboard.putNumber("Drive to Hub Rotation", launchPose.getRotation().getDegrees());
+
+      // Return command to drive
+      return drivebase.driveToPosePID(approachPose, launchPose);
+    }, null);
   }
 }
