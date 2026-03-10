@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.CANFuelSubsystem;
+import frc.robot.subsystems.HopperSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
@@ -59,6 +60,9 @@ public class RobotContainer {
   private final Game game = new Game(drivebase);
 
   private final CANFuelSubsystem ballSubsystem = new CANFuelSubsystem(game);
+
+  private final HopperSubsystem hopperSubsystem =
+      new HopperSubsystem(HopperSubsystem.initializeHardware());
 
   // Define objects for other subsystems here
 
@@ -152,6 +156,7 @@ public class RobotContainer {
     // Publish subsystem data including commands
     SmartDashboard.putData(drivebase);
     SmartDashboard.putData(ballSubsystem);
+    SmartDashboard.putData(hopperSubsystem);
 
     drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
 
@@ -191,6 +196,10 @@ public class RobotContainer {
     // adjust the robot to face the hub while driving
     driverController.leftTrigger().whileTrue(aimHubDrive);
 
+    // Commands to extend and retract the hopper when A and B are pressed on the driver's controller
+    driverController.a().onTrue(hopperSubsystem.extendHopperCommand());
+    driverController.b().onTrue(hopperSubsystem.retractHopperCommand());
+
     // Drives the robot slowly to a set position based on which of the pov buttons is pressed on the
     // driver's controller
     driverController.povUp().whileTrue(shiftForward);
@@ -225,6 +234,11 @@ public class RobotContainer {
   public void disableSubsystems() {
 
     DataLogManager.log("disableSubsystems");
+    hopperSubsystem.disable();
+  }
+
+  public HopperSubsystem getHopperSubsystem() {
+    return hopperSubsystem;
   }
 
   /**

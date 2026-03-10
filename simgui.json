@@ -16,6 +16,12 @@
       "/SmartDashboard/CANFuelSubsystem": "Subsystem",
       "/SmartDashboard/Encoders": "Alerts",
       "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/Hopper Brake Mode": "Command",
+      "/SmartDashboard/Hopper Coast Mode": "Command",
+      "/SmartDashboard/Hopper Reset Position": "Command",
+      "/SmartDashboard/Hopper: Shift Position Down": "Command",
+      "/SmartDashboard/Hopper: Shift Position Up": "Command",
+      "/SmartDashboard/HopperSubsystem": "Subsystem",
       "/SmartDashboard/IMU": "Alerts",
       "/SmartDashboard/JSON": "Alerts",
       "/SmartDashboard/Motors": "Alerts",
@@ -64,6 +70,21 @@
         "right": 3942,
         "top": 118,
         "width": 16.54119300842285,
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Hopper Reset Position": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Hopper: Shift Position Down": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/HopperSubsystem": {
         "window": {
           "visible": true
         }

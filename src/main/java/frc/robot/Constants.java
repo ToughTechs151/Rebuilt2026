@@ -272,7 +272,7 @@ public final class Constants {
       throw new IllegalStateException("HopperConstants Utility Class");
     }
 
-    public static final int MOTOR_PORT = 16;
+    public static final int MOTOR_PORT = 18;
     public static final int CURRENT_LIMIT = 40;
     public static final boolean INVERTED = true;
 
@@ -289,6 +289,8 @@ public final class Constants {
     public static final double RPM_TO_RAD_PER_SEC = HOPPER_RAD_PER_ENCODER_ROTATION / 60;
 
     // Hopper positions.  Horizontal = 0 radians. Assume hopper starts at lowest (rest) position
+    public static final double HOPPER_RETRACTED_RADS = Units.degreesToRadians(90.0);
+    public static final double HOPPER_EXTENDED_RADS = Units.degreesToRadians(0.0);
     public static final double HOPPER_LEVEL1_RADS = Units.degreesToRadians(18.0);
     public static final double HOPPER_LEVEL2_AND_LEVEL3_RADS = Units.degreesToRadians(42.0);
     public static final double HOPPER_SAFE_ANGLE_RADS = Units.degreesToRadians(42.0);

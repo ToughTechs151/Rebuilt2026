@@ -301,6 +301,17 @@ public class HopperSubsystem extends SubsystemBase implements AutoCloseable {
         this);
   }
 
+  // Command to move hopper to extended position if not already there, or to retracted position if
+  // already extended.
+  public Command extendHopperCommand() {
+    return moveToPosition(Constants.HopperConstants.HOPPER_EXTENDED_RADS).withName("Extend Hopper");
+  }
+
+  public Command retractHopperCommand() {
+    return moveToPosition(Constants.HopperConstants.HOPPER_RETRACTED_RADS)
+        .withName("Retract Hopper");
+  }
+
   /**
    * Returns a Command that holds the hopper at the last goal position using the PID Controller
    * driving the motor.
