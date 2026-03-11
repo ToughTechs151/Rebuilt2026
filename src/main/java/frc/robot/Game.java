@@ -9,13 +9,16 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 /** The Game class contains functions specific to the game. */
 public class Game {
+  private RobotContainer robotContainer;
   private SwerveSubsystem drivebase;
+  private CANFuelSubsystem fuel;
 
   // **Pose for red alliance to the hub in meters and degrees. */
   public static final Pose2d RED_HUB_CENTER =
@@ -29,8 +32,15 @@ public class Game {
   private static final double HUB_MIN_RADIUS_M = Units.feetToMeters(4.0);
   private static final double HUB_MAX_RADIUS_M = Units.feetToMeters(10.0);
 
-  public Game(SwerveSubsystem drive) {
-    this.drivebase = drive;
+  /** Constructor for the Game class. */
+  public Game(RobotContainer robotContainer) {
+    this.robotContainer = robotContainer;
+  }
+
+  /** Initialize the game class by setting up subsystems. */
+  public void init() {
+    this.drivebase = robotContainer.getDriveSubsystem();
+    this.fuel = robotContainer.getBallSubsystem();
   }
 
   /**

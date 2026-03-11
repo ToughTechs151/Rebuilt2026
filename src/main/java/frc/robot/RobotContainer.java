@@ -56,7 +56,7 @@ public class RobotContainer {
   private final LEDSubsystem led = new LEDSubsystem();
 
   // Helper functions for this year's game.
-  private final Game game = new Game(drivebase);
+  private final Game game = new Game(this);
 
   private final CANFuelSubsystem ballSubsystem = new CANFuelSubsystem(game);
 
@@ -149,6 +149,9 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    // Initialize the game helper class once all subsystems have been created so it can get
+    // references to them.
+    game.init();
 
     // Publish subsystem data including commands
     SmartDashboard.putData(drivebase);
