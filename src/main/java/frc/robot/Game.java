@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /** The Game class contains functions specific to the game. */
@@ -170,6 +171,6 @@ public class Game {
           // Return command to drive
           return drivebase.driveToPosePID(approachPose, launchPose);
         },
-        null);
+        Set.of(drivebase));
   }
 }
