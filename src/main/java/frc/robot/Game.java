@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -149,6 +150,17 @@ public class Game {
           // Pose of robot at hub
           Pose2d hubCenter = getHubCenterPose();
           Rotation2d hubAngle = getHubToRobotAngle();
+
+          // Limit the target angle to a range in the alliance zone
+          double angleToHub;
+          if (drivebase.isRedAlliance()) {
+            angleToHub = MathUtil.clamp(hubAngle.getDegrees(), -45, 45);
+          } else {
+            angleToHub =
+                MathUtil.clamp(hubAngle.minus(Rotation2d.fromDegrees(180)).getDegrees(), -45, 45)
+                    + 180.0;
+          }
+          hubAngle = Rotation2d.fromDegrees(angleToHub);
 
           // Movement for robot to shooting and approach location
           Translation2d launchTranslation = new Translation2d(LAUNCH_OFFSET, hubAngle);
