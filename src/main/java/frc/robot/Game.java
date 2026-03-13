@@ -32,6 +32,10 @@ public class Game {
   private static final double HUB_MIN_RADIUS_M = Units.feetToMeters(4.0);
   private static final double HUB_MAX_RADIUS_M = Units.feetToMeters(10.0);
 
+  // Offsets for robot when launching and approaching
+  private static final double LAUNCH_OFFSET = Units.feetToMeters(4.5);
+  private static final double APPROACH_OFFSET = Units.feetToMeters(5.5);
+
   public Game(SwerveSubsystem drive) {
     this.drivebase = drive;
   }
@@ -144,15 +148,11 @@ public class Game {
         () -> {
           // Pose of robot at hub
           Pose2d hubCenter = getHubCenterPose();
-
-          // Offsets for robot when launching and approaching
-          double launchOffset = Units.feetToMeters(7.0);
-          double approachOffset = Units.feetToMeters(9.0);
           Rotation2d hubAngle = getHubToRobotAngle();
 
           // Movement for robot to shooting and approach location
-          Translation2d launchTranslation = new Translation2d(launchOffset, hubAngle);
-          Translation2d approachTranslation = new Translation2d(approachOffset, hubAngle);
+          Translation2d launchTranslation = new Translation2d(LAUNCH_OFFSET, hubAngle);
+          Translation2d approachTranslation = new Translation2d(APPROACH_OFFSET, hubAngle);
 
           // Actual robot positions
           Pose2d launchPose =
