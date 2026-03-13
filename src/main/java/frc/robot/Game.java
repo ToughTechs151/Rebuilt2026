@@ -23,6 +23,9 @@ public class Game {
   private SwerveSubsystem drivebase;
   private CANFuelSubsystem fuel;
 
+  private static final double FIELD_LENGTH = 16.51;
+  private static final double FIELD_WIDTH = 8.04;
+
   // **Pose for red alliance to the hub in meters and degrees. */
   public static final Pose2d RED_HUB_CENTER =
       new Pose2d(new Translation2d(11.915, 4.035), new Rotation2d());
@@ -38,6 +41,10 @@ public class Game {
   // Offsets for robot when launching and approaching
   private static final double LAUNCH_OFFSET = Units.feetToMeters(4.5);
   private static final double APPROACH_OFFSET = Units.feetToMeters(5.5);
+
+  /** Pose for blue alliance position in front of the outpost in meters and degrees. */
+  public static final Pose2d BLUE_OUTPOST_LOAD =
+      new Pose2d(new Translation2d(0.53, 0.64), Rotation2d.fromDegrees(180.0));
 
   /** Constructor for the Game class. */
   public Game(RobotContainer robotContainer) {
@@ -136,6 +143,19 @@ public class Game {
     return getHubToRobotVector().getAngle();
   }
 
+  // Mirror the pose between left and right side of the field
+  public Pose2d mirrorPose(Pose2d pose) {
+    return new Pose2d(pose.getX(), FIELD_WIDTH - pose.getY(), pose.getRotation());
+  }
+
+  // Flip the pose between blue and red alliance
+  public Pose2d flipPose(Pose2d pose) {
+    return new Pose2d(
+        FIELD_LENGTH - pose.getX(),
+        FIELD_WIDTH - pose.getY(),
+        pose.getRotation().minus(Rotation2d.fromDegrees(180)));
+  }
+
   /** Command to drive with the launcher aimed at the alliance hub. */
   public Command aimHubDriveCommand(Supplier<ChassisSpeeds> velocity) {
     Pose2d hubTarget = isRedAlliance() ? RED_HUB_CENTER : BLUE_HUB_CENTER;
@@ -153,7 +173,7 @@ public class Game {
    * 7-foot hypotenuse away.
    */
   public Command driveHubCommand() {
-    // Ensures everything runs at run time, instead of after
+    // Ensures everything runs at run time, instead of during initialization
     return Commands.defer(
         () -> {
           // Pose of robot at hub
@@ -183,6 +203,20 @@ public class Game {
 
           // Return command to drive
           return drivebase.driveToPosePID(approachPose, launchPose);
+        },
+        Set.of(drivebase));
+  }
+
+  /**
+   * Creates a command to drive to the alliance output using PID control for alignment.
+   */
+  public Command driveOutpostCommand() {
+    return Commands.defer(
+        () -> {
+          Pose2d targetPose = isRedAlliance() ? flipPose(BLUE_OUTPOST_LOAD) : BLUE_OUTPOST_LOAD;
+
+          // Return command to drive
+          return drivebase.alignToPosePID(targetPose);
         },
         Set.of(drivebase));
   }

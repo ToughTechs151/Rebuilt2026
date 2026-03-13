@@ -189,7 +189,7 @@ public final class Constants {
     public static final Time END_TRIGGER_DEBOUNCE = Seconds.of(0.1);
 
     /** Timeout for auto-align adjustments in seconds. */
-    public static final Time AUTO_ALIGN_ADJUST_TIMEOUT = Seconds.of(1.0);
+    public static final Time AUTO_ALIGN_ADJUST_TIMEOUT = Seconds.of(2.0);
 
     /** PID constants for translational control (P, I, D). */
     public static final PIDConstants TRANSLATION_PID = new PIDConstants(2.5, 0.0, 0.0);
