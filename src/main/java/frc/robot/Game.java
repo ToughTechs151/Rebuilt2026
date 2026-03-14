@@ -1,5 +1,9 @@
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -11,8 +15,10 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -45,6 +51,12 @@ public class Game {
   /** Pose for blue alliance position in front of the outpost in meters and degrees. */
   public static final Pose2d BLUE_OUTPOST_LOAD =
       new Pose2d(new Translation2d(0.53, 0.64), Rotation2d.fromDegrees(180.0));
+
+  /** Positions for entry and exist of the trench in meters. */
+  private static final double BLUE_TRENCH_NEUTRAL_X = 6.2;
+
+  private static final double BLUE_TRENCH_BLUE_X = 3.2;
+  private static final double TRENCH_Y = 0.625;
 
   /** Constructor for the Game class. */
   public Game(RobotContainer robotContainer) {
@@ -207,9 +219,7 @@ public class Game {
         Set.of(drivebase));
   }
 
-  /**
-   * Creates a command to drive to the alliance output using PID control for alignment.
-   */
+  /** Creates a command to drive to the alliance output using PID control for alignment. */
   public Command driveOutpostCommand() {
     return Commands.defer(
         () -> {
@@ -217,6 +227,38 @@ public class Game {
 
           // Return command to drive
           return drivebase.alignToPosePID(targetPose);
+        },
+        Set.of(drivebase));
+  }
+
+  /**
+   * Create a command to drive to through the trench from the neutral zone.
+   *
+   * @return the command to drive to the launch position
+   */
+  public Command driveTrenchCommand() {
+    return Commands.defer(
+        () -> {
+          // Create a list of waypoints from poses. Each pose represents one waypoint.
+          // The rotation component of the pose should be the direction of travel.
+          List<Waypoint> waypoints =
+              PathPlannerPath.waypointsFromPoses(
+                  new Pose2d(BLUE_TRENCH_NEUTRAL_X, TRENCH_Y, Rotation2d.fromDegrees(180)),
+                  new Pose2d(BLUE_TRENCH_BLUE_X, TRENCH_Y, Rotation2d.fromDegrees(180)));
+
+          // Create the path using the waypoints created above
+          PathPlannerPath path =
+              new PathPlannerPath(
+                  waypoints,
+                  DriveConstants.DRIVE_POSE_CONSTRAINTS,
+                  null, // The ideal starting state, this is not relevant for on-the-fly paths.
+                  new GoalEndState(1.5, Rotation2d.fromDegrees(90))); // Goal end state.
+
+          // Mirror the path if we want the left side. Alliance flipping is automatic.
+          // if (useLeft) {
+          //   path = path.mirrorPath();
+          // }
+          return AutoBuilder.pathfindThenFollowPath(path, DriveConstants.DRIVE_POSE_CONSTRAINTS);
         },
         Set.of(drivebase));
   }

@@ -198,6 +198,7 @@ public class RobotContainer {
 
     // Drive to a launch position near the hub when the A button is pressed
     driverController.a().whileTrue(game.driveHubCommand().withName("Drive to Hub"));
+    driverController.b().whileTrue(game.driveTrenchCommand().withName("Drive Trench"));
 
     // Drives robot oriented slowly at a set speed based on which of the pov buttons is pressed on
     // the driver's controller
