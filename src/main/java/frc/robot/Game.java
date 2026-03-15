@@ -58,6 +58,21 @@ public class Game {
   private static final double BLUE_TRENCH_BLUE_X = 3.2;
   private static final double TRENCH_Y = 0.625;
 
+  // Create a list of waypoints from poses. Each pose represents one waypoint.
+  // The rotation component of the pose should be the direction of travel.
+  List<Waypoint> trenchWaypoints =
+      PathPlannerPath.waypointsFromPoses(
+          new Pose2d(BLUE_TRENCH_NEUTRAL_X, TRENCH_Y, Rotation2d.fromDegrees(180)),
+          new Pose2d(BLUE_TRENCH_BLUE_X, TRENCH_Y, Rotation2d.fromDegrees(180)));
+
+  // Create the path using the waypoints created above
+  PathPlannerPath trenchPath =
+      new PathPlannerPath(
+          trenchWaypoints,
+          DriveConstants.DRIVE_POSE_CONSTRAINTS,
+          null, // The ideal starting state, this is not relevant for on-the-fly paths.
+          new GoalEndState(1.5, Rotation2d.fromDegrees(90))); // Goal end state.
+
   /** Constructor for the Game class. */
   public Game(RobotContainer robotContainer) {
     this.robotContainer = robotContainer;
@@ -180,43 +195,59 @@ public class Game {
     SmartDashboard.putNumber("Hub/Angle", getAngleToHub().getDegrees());
   }
 
-  /**
-   * Creates a command to drive diagonally in front of the nearest hub. The target is exactly a
-   * 7-foot hypotenuse away.
-   */
+  /** Creates a command to drive diagonally in front of the alliance hub. */
   public Command driveHubCommand() {
     // Ensures everything runs at run time, instead of during initialization
     return Commands.defer(
         () -> {
-          // Pose of robot at hub
-          Pose2d hubCenter = getHubCenterPose();
-          Rotation2d hubAngle = getHubToRobotAngle();
+          Pose2d robotPose = drivebase.getPose();
+          Pose2d hubPose = getHubCenterPose();
+          boolean useLeft = false;
 
-          // Limit the target angle to a range in the alliance zone
-          double angleToHub;
-          if (drivebase.isRedAlliance()) {
-            angleToHub = MathUtil.clamp(hubAngle.getDegrees(), -45, 45);
-          } else {
-            angleToHub =
-                MathUtil.clamp(hubAngle.minus(Rotation2d.fromDegrees(180)).getDegrees(), -45, 45)
-                    + 180.0;
+          if (!isRobotOnAllianceSideOfHub(robotPose, hubPose)) {
+            if (isRedAlliance()) {
+              if (robotPose.getY() < FIELD_WIDTH / 2.0) {
+                useLeft = true;
+              }
+            } else {
+              if (robotPose.getY() > FIELD_WIDTH / 2.0) {
+                useLeft = true;
+              }
+            }
+            return driveTrenchCommand(useLeft).andThen(createDriveHubCommand());
           }
-          hubAngle = Rotation2d.fromDegrees(angleToHub);
-
-          // Movement for robot to shooting and approach location
-          Translation2d launchTranslation = new Translation2d(LAUNCH_OFFSET, hubAngle);
-          Translation2d approachTranslation = new Translation2d(APPROACH_OFFSET, hubAngle);
-
-          // Actual robot positions
-          Pose2d launchPose =
-              new Pose2d(hubCenter.getTranslation().plus(launchTranslation), hubAngle);
-          Pose2d approachPose =
-              new Pose2d(hubCenter.getTranslation().plus(approachTranslation), hubAngle);
-
-          // Return command to drive
-          return drivebase.driveToPosePID(approachPose, launchPose);
+          return createDriveHubCommand();
         },
         Set.of(drivebase));
+  }
+
+  /** Creates a command to drive diagonally in front of the nearest hub. */
+  public Command createDriveHubCommand() {
+    // Pose of robot at hub
+    Pose2d hubCenter = getHubCenterPose();
+    Rotation2d hubAngle = getHubToRobotAngle();
+
+    // Limit the target angle to a range in the alliance zone
+    double angleToHub;
+    if (drivebase.isRedAlliance()) {
+      angleToHub = MathUtil.clamp(hubAngle.getDegrees(), -45, 45);
+    } else {
+      angleToHub =
+          MathUtil.clamp(hubAngle.minus(Rotation2d.fromDegrees(180)).getDegrees(), -45, 45) + 180.0;
+    }
+    hubAngle = Rotation2d.fromDegrees(angleToHub);
+
+    // Movement for robot to shooting and approach location
+    Translation2d launchTranslation = new Translation2d(LAUNCH_OFFSET, hubAngle);
+    Translation2d approachTranslation = new Translation2d(APPROACH_OFFSET, hubAngle);
+
+    // Actual robot positions
+    Pose2d launchPose = new Pose2d(hubCenter.getTranslation().plus(launchTranslation), hubAngle);
+    Pose2d approachPose =
+        new Pose2d(hubCenter.getTranslation().plus(approachTranslation), hubAngle);
+
+    // Return command to drive
+    return drivebase.driveToPosePID(approachPose, launchPose);
   }
 
   /** Creates a command to drive to the alliance output using PID control for alignment. */
@@ -231,35 +262,13 @@ public class Game {
         Set.of(drivebase));
   }
 
-  /**
-   * Create a command to drive to through the trench from the neutral zone.
-   *
-   * @return the command to drive to the launch position
-   */
-  public Command driveTrenchCommand() {
-    return Commands.defer(
-        () -> {
-          // Create a list of waypoints from poses. Each pose represents one waypoint.
-          // The rotation component of the pose should be the direction of travel.
-          List<Waypoint> waypoints =
-              PathPlannerPath.waypointsFromPoses(
-                  new Pose2d(BLUE_TRENCH_NEUTRAL_X, TRENCH_Y, Rotation2d.fromDegrees(180)),
-                  new Pose2d(BLUE_TRENCH_BLUE_X, TRENCH_Y, Rotation2d.fromDegrees(180)));
+  /** Create a command to drive to through the trench from the neutral zone. */
+  public Command driveTrenchCommand(boolean useLeft) {
 
-          // Create the path using the waypoints created above
-          PathPlannerPath path =
-              new PathPlannerPath(
-                  waypoints,
-                  DriveConstants.DRIVE_POSE_CONSTRAINTS,
-                  null, // The ideal starting state, this is not relevant for on-the-fly paths.
-                  new GoalEndState(1.5, Rotation2d.fromDegrees(90))); // Goal end state.
-
-          // Mirror the path if we want the left side. Alliance flipping is automatic.
-          // if (useLeft) {
-          //   path = path.mirrorPath();
-          // }
-          return AutoBuilder.pathfindThenFollowPath(path, DriveConstants.DRIVE_POSE_CONSTRAINTS);
-        },
-        Set.of(drivebase));
+    // Mirror the path if we want the left side. Alliance flipping is automatic.
+    if (useLeft) {
+      trenchPath = trenchPath.mirrorPath();
+    }
+    return AutoBuilder.pathfindThenFollowPath(trenchPath, DriveConstants.DRIVE_POSE_CONSTRAINTS);
   }
 }
