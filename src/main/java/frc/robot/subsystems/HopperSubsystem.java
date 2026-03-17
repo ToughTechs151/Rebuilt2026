@@ -5,9 +5,9 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -440,9 +440,11 @@ public class HopperSubsystem extends SubsystemBase implements AutoCloseable {
 
   /** Returns the absolute hopper angle. The units are in degrees */
   public double getAbsoluteAngle() {
-    // Add the offset from the 0 point of the encoder.
+    // Add the offset from the 0 point of the encoder and wrap to within +/-180
     double angle = absoluteEncoder.getPosition() * 360 - HopperConstants.ABSOLUTE_OFFSET_DEGREES;
-    if (angle < 0) {
+    if (angle >= 180.0) {
+      angle -= 360.0;
+    } else if (angle < -180.0) {
       angle += 360;
     }
     return angle;

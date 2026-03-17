@@ -22,6 +22,7 @@ public class RobotModel {
 
   // Define subsystem simulation objects
   FuelSubsystemSim fuelModel;
+  HopperModel hopperModel;
 
   Random random = new Random(); // NOSONAR(java:S2245)
 
@@ -54,6 +55,8 @@ public class RobotModel {
             robot.getRobotContainer().getBallSubsystem(),
             robot.getRobotContainer().getDriveSubsystem());
 
+    hopperModel = new HopperModel(robot.getRobotContainer().getHopperSubsystem());
+
     reset();
   }
 
@@ -65,6 +68,7 @@ public class RobotModel {
 
     // Update subsystem simulations
     fuelModel.updateSim();
+    hopperModel.updateSim();
 
     // Simulate battery voltage drop based on total simulated current
     // Get current draws from subsystems
