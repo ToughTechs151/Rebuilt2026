@@ -241,6 +241,8 @@ public class HopperSubsystem extends SubsystemBase implements AutoCloseable {
   public void periodic() {
 
     checkAbsoluteEncoder();
+    // Run the controller to move or hold position when enabled
+    useOutput();
 
     SmartDashboard.putBoolean("Hopper/Enabled", hopperEnabled);
     SmartDashboard.putNumber(
@@ -294,11 +296,7 @@ public class HopperSubsystem extends SubsystemBase implements AutoCloseable {
   /** Returns a Command that moves the hopper to a new position. */
   public Command moveToPosition(double goal) {
     return new FunctionalCommand(
-        () -> setGoalPosition(goal),
-        this::useOutput,
-        interrupted -> {},
-        this::atGoalPosition,
-        this);
+        () -> setGoalPosition(goal), () -> {}, interrupted -> {}, this::atGoalPosition, this);
   }
 
   // Command to move hopper to extended position if not already there, or to retracted position if
@@ -317,7 +315,7 @@ public class HopperSubsystem extends SubsystemBase implements AutoCloseable {
    * driving the motor.
    */
   public Command holdPosition() {
-    return run(this::useOutput).withName("Hopper: Hold Position");
+    return run(() -> {}).withName("Hopper: Hold Position");
   }
 
   /** Abort Command will set the hopper position to the goal position in any restricted areas. */
@@ -335,7 +333,7 @@ public class HopperSubsystem extends SubsystemBase implements AutoCloseable {
             () ->
                 setGoalPosition(
                     hopperController.getGoal().position + Constants.HopperConstants.POS_INCREMENT))
-        .andThen(run(this::useOutput))
+        .andThen(run(() -> {}))
         .until(this::atGoalPosition)
         .withName("Hopper: Shift Position Up");
   }
@@ -346,7 +344,7 @@ public class HopperSubsystem extends SubsystemBase implements AutoCloseable {
             () ->
                 setGoalPosition(
                     hopperController.getGoal().position - Constants.HopperConstants.POS_INCREMENT))
-        .andThen(run(this::useOutput))
+        .andThen(run(() -> {}))
         .until(this::atGoalPosition)
         .withName("Hopper: Shift Position Down");
   }
@@ -411,7 +409,6 @@ public class HopperSubsystem extends SubsystemBase implements AutoCloseable {
 
     // Clear the enabled flag and call useOutput to zero the motor command
     hopperEnabled = false;
-    useOutput();
     setDefaultCommand(run(() -> {}).withName("Idle"));
 
     DataLogManager.log(

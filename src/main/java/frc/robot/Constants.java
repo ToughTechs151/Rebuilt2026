@@ -290,17 +290,13 @@ public final class Constants {
 
     // Hopper positions.  Horizontal = 0 radians. Assume hopper starts at lowest (rest) position
     public static final double HOPPER_RETRACTED_RADS = Units.degreesToRadians(90.0);
-    public static final double HOPPER_EXTENDED_RADS = Units.degreesToRadians(0.0);
-    public static final double HOPPER_LEVEL1_RADS = Units.degreesToRadians(18.0);
-    public static final double HOPPER_LEVEL2_AND_LEVEL3_RADS = Units.degreesToRadians(42.0);
-    public static final double HOPPER_SAFE_ANGLE_RADS = Units.degreesToRadians(42.0);
-    public static final double HOPPER_LEVEL4_RADS = Units.degreesToRadians(65.0);
-    public static final double HOPPER_ALGAE_RADS = Units.degreesToRadians(178.0);
-    public static final double HOPPER_PROCESSOR_RADS = Units.degreesToRadians(178.0);
-    public static final double HOPPER_OFFSET_RADS = Units.degreesToRadians(18.0);
-    public static final double HOPPER_UNSAFE_RADS = Units.degreesToRadians(35.0);
-    public static final double MIN_ANGLE_RADS = Units.degreesToRadians(18.0);
+    public static final double HOPPER_EXTENDED_RADS = Units.degreesToRadians(10.0);
+    public static final double MIN_ANGLE_RADS = Units.degreesToRadians(0.0);
     public static final double MAX_ANGLE_RADS = Units.degreesToRadians(180.0);
+
+    // Offset of the relative encoder which is equal to the angle in the start position
+    public static final double HOPPER_OFFSET_RADS = MIN_ANGLE_RADS;
+
     public static final double POS_INCREMENT = Units.degreesToRadians(1.0); // For small adjustments
     public static final double POSITION_TOLERANCE = Units.degreesToRadians(4.0);
     public static final double VELOCITY_TOLERANCE = Units.degreesToRadians(10.0);
