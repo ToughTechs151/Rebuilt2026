@@ -2,6 +2,7 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 import edu.wpi.first.math.MathUtil;
@@ -66,12 +67,17 @@ public class Game {
           new Pose2d(BLUE_TRENCH_BLUE_X, TRENCH_Y, Rotation2d.fromDegrees(180)));
 
   // Create the path using the waypoints created above
-  PathPlannerPath trenchPath =
+  PathPlannerPath rightTrenchPath =
       new PathPlannerPath(
           trenchWaypoints,
           DriveConstants.DRIVE_POSE_CONSTRAINTS,
-          null, // The ideal starting state, this is not relevant for on-the-fly paths.
-          new GoalEndState(1.5, Rotation2d.fromDegrees(90))); // Goal end state.
+          new IdealStartingState(
+              1.0,
+              Rotation2d.fromDegrees(
+                  180)), // The ideal starting state, this is not relevant for on-the-fly paths.
+          new GoalEndState(1.0, Rotation2d.fromDegrees(180))); // Goal end state.
+
+  PathPlannerPath leftTrenchPath = rightTrenchPath.mirrorPath();
 
   /** Constructor for the Game class. */
   public Game(RobotContainer robotContainer) {
@@ -262,13 +268,15 @@ public class Game {
         Set.of(drivebase));
   }
 
-  /** Create a command to drive to through the trench from the neutral zone. */
+  /** Create a command to drive through the trench from the neutral zone. */
   public Command driveTrenchCommand(boolean useLeft) {
 
-    // Mirror the path if we want the left side. Alliance flipping is automatic.
+    // Use or left or right side trench path. Alliance flipping is automatic.
     if (useLeft) {
-      trenchPath = trenchPath.mirrorPath();
+      return AutoBuilder.pathfindThenFollowPath(
+          leftTrenchPath, DriveConstants.DRIVE_POSE_CONSTRAINTS);
     }
-    return AutoBuilder.pathfindThenFollowPath(trenchPath, DriveConstants.DRIVE_POSE_CONSTRAINTS);
+    return AutoBuilder.pathfindThenFollowPath(
+        rightTrenchPath, DriveConstants.DRIVE_POSE_CONSTRAINTS);
   }
 }
