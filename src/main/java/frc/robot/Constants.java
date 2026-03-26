@@ -225,14 +225,14 @@ public final class Constants {
     public static final double SPIN_UP_FEEDER_VOLTAGE = -6;
     public static final double EJECTING_FEEDER_VOLTAGE = 12;
     public static final double EJECTING_INTAKE_VOLTAGE = -5.3;
-    public static final double LAUNCH_SPINUP_THRESHOLD = 0.88;
+    public static final double LAUNCH_SPINUP_THRESHOLD = 0.6;
     public static final double RATE_LIMIT = 999.0; // volts per second
     public static final double ENABLE_LAUNCH_TABLE = 1;
     public static final LUT LAUNCH_TABLE = new LUT(new double[][] {{1.5, 2750}, {4.5, 4450}});
 
     // Constants tunable through TunableNumbers
     public static final double LAUNCHER_SPEED_RPM = 3200.0;
-    public static final double LAUNCHER_KP_VOLTS_PER_RPM = 0.0003;
+    public static final double LAUNCHER_KP_VOLTS_PER_RPM = 0.00045;
     public static final double LAUNCHER_KD_VOLTS_PER_RPM_SEC = 0.0;
     public static final double LAUNCHER_KV_VOLTS_PER_RPM = 0.0021;
 
