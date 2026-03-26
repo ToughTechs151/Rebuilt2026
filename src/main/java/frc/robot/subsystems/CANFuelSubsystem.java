@@ -69,6 +69,8 @@ public class CANFuelSubsystem extends SubsystemBase {
       new TunableNumber("Launcher Speed RPM", FuelConstants.LAUNCHER_SPEED_RPM);
   private TunableNumber enableLaunchTable =
       new TunableNumber("Launcher Enable Table", FuelConstants.ENABLE_LAUNCH_TABLE);
+  private TunableNumber launchSpinupThreshold =
+      new TunableNumber("Launcher Spin up", FuelConstants.LAUNCH_SPINUP_THRESHOLD);
 
   /** Creates a new CANFuelSubsystem. */
   public CANFuelSubsystem(Game game) {
@@ -197,7 +199,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     // If the launcher is running but not up to speed, run the feeder inward. When the
     // launcher is up to speed, run the feeder to push balls into the launcher.
     if (launcherEnabled) {
-      if (launcherEncoder.getVelocity() < launcherGoal * 0.88) {
+      if (launcherEncoder.getVelocity() < launcherGoal * launchSpinupThreshold.get()) {
         feederGoal = spinUpFeederVoltage.get();
       } else {
         feederGoal = launchingFeederVoltage.get();
@@ -260,6 +262,8 @@ public class CANFuelSubsystem extends SubsystemBase {
         .feedForward
         .kV(velocityGain.get());
     launcherRoller.configure(
+        launcherConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    launcherRoller2.configure(
         launcherConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 

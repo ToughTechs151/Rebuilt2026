@@ -133,7 +133,7 @@ public final class Constants {
     public static final double WHEEL_LOCK_TIME = 10; // seconds
 
     /** Speed scaling factor for POV/directional drive commands. */
-    public static final double POV_SPEED = 0.2;
+    public static final double POV_SPEED = 0.15;
 
     /** Turn scaling factor for POV forward command. */
     public static final double POV_TURNING = 0.50;
@@ -219,21 +219,20 @@ public final class Constants {
     // based on exact robot construction.
     // See the Software Guide for tuning information
     public static final double INTAKING_FEEDER_VOLTAGE = -12;
-    public static final double INTAKING_INTAKE_VOLTAGE = 4.5;
+    public static final double INTAKING_INTAKE_VOLTAGE = 4.9;
     public static final double LAUNCHING_FEEDER_VOLTAGE = 9;
-    public static final double LAUNCHING_INTAKE_VOLTAGE = 4;
+    public static final double LAUNCHING_INTAKE_VOLTAGE = 3.6;
     public static final double SPIN_UP_FEEDER_VOLTAGE = -6;
-    public static final double SPIN_UP_SECONDS = 1.0;
     public static final double EJECTING_FEEDER_VOLTAGE = 12;
-    public static final double EJECTING_INTAKE_VOLTAGE = -6;
+    public static final double EJECTING_INTAKE_VOLTAGE = -5.3;
+    public static final double LAUNCH_SPINUP_THRESHOLD = 0.6;
     public static final double RATE_LIMIT = 999.0; // volts per second
     public static final double ENABLE_LAUNCH_TABLE = 1;
-    public static final LUT LAUNCH_TABLE =
-        new LUT(new double[][] {{1.5, 2800.0}, {2.0, 3000.0}, {2.5, 3400.0}, {2.95, 3600}});
+    public static final LUT LAUNCH_TABLE = new LUT(new double[][] {{1.5, 2750}, {4.5, 4450}});
 
     // Constants tunable through TunableNumbers
     public static final double LAUNCHER_SPEED_RPM = 3200.0;
-    public static final double LAUNCHER_KP_VOLTS_PER_RPM = 0.00015;
+    public static final double LAUNCHER_KP_VOLTS_PER_RPM = 0.00045;
     public static final double LAUNCHER_KD_VOLTS_PER_RPM_SEC = 0.0;
     public static final double LAUNCHER_KV_VOLTS_PER_RPM = 0.0021;
 
