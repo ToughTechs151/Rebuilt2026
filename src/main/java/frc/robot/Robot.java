@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
+import com.revrobotics.util.StatusLogger;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -32,6 +34,10 @@ public class Robot extends TimedRobot {
 
     // Initialize the data logging.
     datalog = DataLogging.getInstance();
+
+    // Disable auto logging for CTRE and REV libraries.
+    StatusLogger.disableAutoLogging();
+    SignalLogger.enableAutoLogging(false);
 
     // Print our splash screen info.
     Splash.printAllStatusFiles();
