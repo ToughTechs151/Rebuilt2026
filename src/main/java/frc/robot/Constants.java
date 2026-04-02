@@ -64,6 +64,9 @@ public final class Constants {
   /** Set to true to log each frame of command execution. Set to false to disable. */
   public static final boolean COMMAND_EXECUTE_LOG = false;
 
+  /** Set to true to enable automatic logging from the REV and CTRE libraries. */
+  public static final boolean LOG_HARDWARE_DATA = false;
+
   /** Constants used for assigning operator input. */
   public static final class OIConstants {
 

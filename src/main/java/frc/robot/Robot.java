@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.revrobotics.util.StatusLogger;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -24,6 +25,7 @@ public class Robot extends TimedRobot {
   private RobotContainer robotContainer;
   private DataLogging datalog;
   private Timer disabledTimer;
+  private Timer logRestartTimer;
 
   /**
    * {@code robotInit} runs when the robot first starts up. It is used to create the robot
@@ -32,24 +34,29 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
 
-    // Initialize the data logging.
+    // Initialize the WPILog data logging.
     datalog = DataLogging.getInstance();
 
-    // Disable auto logging for CTRE and REV libraries.
-    StatusLogger.disableAutoLogging();
-    SignalLogger.enableAutoLogging(false);
+    // Disable auto logging for CTRE and REV libraries if not enabled
+    if (!Constants.LOG_HARDWARE_DATA) {
+      StatusLogger.disableAutoLogging(); // REV
+      SignalLogger.enableAutoLogging(false); // CTRE
+    }
 
     // Print our splash screen info.
     Splash.printAllStatusFiles();
 
-    // Instantiate our RobotContainer. This will perform all our button bindings,
-    // and put our
-    // autonomous chooser on the dashboard.
+    // Instantiate our RobotContainer. This will create subsystems, perform all our button bindings,
+    // and put our autonomous chooser on the dashboard.
     this.robotContainer = new RobotContainer();
 
     // Create a timer to disable motor brake a few seconds after disable.  This will let the robot
     // stop immediately when disabled, but then also let it be pushed more easily
     disabledTimer = new Timer();
+
+    // Create a timer to restart logging periodically in case it has paused.
+    logRestartTimer = new Timer();
+    logRestartTimer.start();
 
     datalog.dataLogRobotContainerInit(this.robotContainer);
   }
@@ -68,6 +75,12 @@ public class Robot extends TimedRobot {
     // subsystem periodic() methods. This must be called from the robot's periodic block in order
     // for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    // Restart the data logger periodically in case it has paused.
+    if (logRestartTimer.hasElapsed(1.0)) {
+      DataLogManager.getLog().resume();
+      logRestartTimer.reset();
+    }
 
     robotContainer.periodic();
 
