@@ -9,7 +9,7 @@
         "containers": [
           {
             "title": "Brown Out",
-            "x": 1280.0,
+            "x": 1536.0,
             "y": 0.0,
             "width": 256.0,
             "height": 128.0,
@@ -26,7 +26,7 @@
           },
           {
             "title": "Ever Browned Out",
-            "x": 1280.0,
+            "x": 1536.0,
             "y": 128.0,
             "width": 256.0,
             "height": 128.0,
@@ -42,39 +42,11 @@
             }
           },
           {
-            "title": "Batt Voltage",
-            "x": 1408.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Robot/Batt Voltage",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "AmpHoursUsed",
-            "x": 1280.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Battery/AmpHoursUsed",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
             "title": "photonvisionfront_Port_1182_Output_MJPEG_Server",
             "x": 0.0,
             "y": 0.0,
-            "width": 896.0,
-            "height": 640.0,
+            "width": 1152.0,
+            "height": 896.0,
             "type": "Camera Stream",
             "properties": {
               "topic": "/CameraPublisher/photonvisionfront_Port_1182_Output_MJPEG_Server",
@@ -84,10 +56,10 @@
           },
           {
             "title": "Auto Winner",
-            "x": 896.0,
-            "y": 640.0,
-            "width": 128.0,
-            "height": 128.0,
+            "x": 1408.0,
+            "y": 384.0,
+            "width": 384.0,
+            "height": 256.0,
             "type": "Text Display",
             "properties": {
               "topic": "/SmartDashboard/Hub/Auto Winner",
@@ -98,7 +70,7 @@
           },
           {
             "title": "Match Time",
-            "x": 896.0,
+            "x": 1152.0,
             "y": 0.0,
             "width": 256.0,
             "height": 256.0,
@@ -114,8 +86,8 @@
           },
           {
             "title": "Current Shift",
-            "x": 1024.0,
-            "y": 640.0,
+            "x": 1408.0,
+            "y": 256.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
@@ -128,7 +100,7 @@
           },
           {
             "title": "Is Active",
-            "x": 896.0,
+            "x": 1152.0,
             "y": 512.0,
             "width": 256.0,
             "height": 128.0,
@@ -145,7 +117,7 @@
           },
           {
             "title": "Shift Time Remaining",
-            "x": 896.0,
+            "x": 1152.0,
             "y": 256.0,
             "width": 256.0,
             "height": 256.0,
@@ -157,6 +129,19 @@
               "time_display_mode": "Minutes and Seconds",
               "red_start_time": 1,
               "yellow_start_time": 5
+            }
+          },
+          {
+            "title": "Batt Voltage",
+            "x": 1536.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Robot/Batt Voltage",
+              "period": 0.06,
+              "data_type": "double"
             }
           }
         ]
@@ -509,6 +494,20 @@
             "type": "Text Display",
             "properties": {
               "topic": "/SmartDashboard/TunableNumbers/Ejecting intake roller value",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Launcher Enable Table",
+            "x": 1280.0,
+            "y": 512.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/TunableNumbers/Launcher Enable Table",
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": false
