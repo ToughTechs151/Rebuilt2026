@@ -225,17 +225,17 @@ public class Vision {
     /** Rear Left Camera. */
     LEFT_CAM(
         "Arducam_OV9281_Left",
-        new Rotation3d(0, Math.toRadians(-25), Math.toRadians(160)),
+        new Rotation3d(0, Math.toRadians(-20), Math.toRadians(160)),
         new Translation3d(
-            Units.inchesToMeters(-8.5), Units.inchesToMeters(13.0), Units.inchesToMeters(7.9)),
+            Units.inchesToMeters(3.1), Units.inchesToMeters(-10.5), Units.inchesToMeters(20.0)),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)),
     /** Rear Right Camera. */
     RIGHT_CAM(
         "Arducam_OV9281_Right",
-        new Rotation3d(0, Math.toRadians(-25), Math.toRadians(-160)),
+        new Rotation3d(0, Math.toRadians(-20), Math.toRadians(-160)),
         new Translation3d(
-            Units.inchesToMeters(-8.5), Units.inchesToMeters(-13.0), Units.inchesToMeters(7.9)),
+            Units.inchesToMeters(3.1), Units.inchesToMeters(-12.6), Units.inchesToMeters(20.0)),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)),
 
@@ -244,7 +244,7 @@ public class Vision {
         "Arducam_OV9281_Front",
         new Rotation3d(0, Math.toRadians(-20), Math.toRadians(0)),
         new Translation3d(
-            Units.inchesToMeters(8.25), Units.inchesToMeters(12.0), Units.inchesToMeters(7.9)),
+            Units.inchesToMeters(5.8), Units.inchesToMeters(-10.8), Units.inchesToMeters(20.0)),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1));
 
