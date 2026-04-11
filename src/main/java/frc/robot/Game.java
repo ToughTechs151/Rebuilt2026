@@ -40,11 +40,11 @@ public class Game {
       new Pose2d(new Translation2d(4.626, 4.035), new Rotation2d());
 
   // pose for the blue alliance to the upper trench in meters and degrees
-  public static final Pose2d BLUE_TRENCH_LEFT_CENTER =
-      new Pose2d(new Translation2d(2.395, 7.376), Rotation2d.fromDegrees(0));
+  public static final Pose2d BLUE_TRENCH_LEFT_EXIT =
+      new Pose2d(new Translation2d(3.1, 7.376), Rotation2d.fromDegrees(0));
   // pose for the blue alliance to the lower trench in meters and degrees
-  public static final Pose2d BLUE_TRENCH_RIGHT_CENTER =
-      new Pose2d(new Translation2d(2.395, 0.592), Rotation2d.fromDegrees(0));
+  public static final Pose2d BLUE_TRENCH_RIGHT_EXIT =
+      new Pose2d(new Translation2d(3.1, 0.592), Rotation2d.fromDegrees(0));
 
   public static final Pose2d BLUE_TRENCH_RIGHT_APPROACH =
       new Pose2d(new Translation2d(6.000, 0.592), Rotation2d.fromDegrees(0));
@@ -53,9 +53,9 @@ public class Game {
 
   public static final double FIELD_MIDLINE_Y = FlippingUtil.fieldSizeY / 2.0;
 
-  public static final Pose2d BLUE_BUMP_LEFT_CENTER =
+  public static final Pose2d BLUE_BUMP_LEFT_EXIT =
       new Pose2d(new Translation2d(2.995, 5.611), Rotation2d.fromDegrees(0));
-  public static final Pose2d BLUE_BUMP_RIGHT_CENTER =
+  public static final Pose2d BLUE_BUMP_RIGHT_EXIT =
       new Pose2d(new Translation2d(2.995, 2.502), Rotation2d.fromDegrees(0));
 
   public static final Pose2d BLUE_BUMP_LEFT_APPROACH =
@@ -126,8 +126,6 @@ public class Game {
     return hubPos.getTranslation().minus(drivebase.getPose().getTranslation()).getAngle();
   }
 
-  // calculate the angle to the trench as Rotation2d
-
   private Pose2d getHubCenterPose() {
     var alliance = DriverStation.getAlliance();
     if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
@@ -138,11 +136,11 @@ public class Game {
 
   // determine which trench to pass through
 
-  private Pose2d getTrenchCenterPose() {
+  private Pose2d getTrenchExitPose() {
     if (isLeftTrench()) {
-      return BLUE_TRENCH_LEFT_CENTER;
+      return BLUE_TRENCH_LEFT_EXIT;
     } else {
-      return BLUE_TRENCH_RIGHT_CENTER;
+      return BLUE_TRENCH_RIGHT_EXIT;
     }
   }
 
@@ -154,11 +152,11 @@ public class Game {
     }
   }
 
-  public Pose2d getBumpCenterPose() {
+  public Pose2d getBumpExitPose() {
     if (isLeftTrench()) {
-      return BLUE_BUMP_LEFT_CENTER;
+      return BLUE_BUMP_LEFT_EXIT;
     } else {
-      return BLUE_BUMP_RIGHT_CENTER;
+      return BLUE_BUMP_RIGHT_EXIT;
     }
   }
 
@@ -169,12 +167,6 @@ public class Game {
       return BLUE_BUMP_RIGHT_APPROACH;
     }
   }
-
-  /**
-   * Returns the pose of the robot.
-   *
-   * @return The pose of the robot.
-   */
 
   /**
    * Returns true if the robot is within the defined distance from the hub and aimed towards the
@@ -236,15 +228,11 @@ public class Game {
     SmartDashboard.putNumber("Hub/Angle", getAngleToHub().getDegrees());
   }
 
-  /**
-   * Creates a command to drive diagonally in front of the nearest hub. The target is exactly a
-   * 7-foot hypotenuse away.
-   */
   public Command driveTrenchCommand() {
     return Commands.defer(
         () -> {
           Pose2d approachPose = getTrenchApproachPose();
-          Pose2d trenchCenter = getTrenchCenterPose();
+          Pose2d trenchCenter = getTrenchExitPose();
           List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(approachPose, trenchCenter);
 
           PathPlannerPath driveTrench =
@@ -263,7 +251,7 @@ public class Game {
     return Commands.defer(
         () -> {
           Pose2d approachPose = getBumpApproachPose();
-          Pose2d bumpCenter = getBumpCenterPose();
+          Pose2d bumpCenter = getBumpExitPose();
           List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(approachPose, bumpCenter);
 
           PathPlannerPath driveBump =
@@ -278,7 +266,10 @@ public class Game {
         Set.of(drivebase));
   }
 
-  public Command driveHubCommand() {
+  /**
+   * Creates a command to drive to the nearest hub and aim for launching.
+   */
+    public Command driveHubCommand() {
     // Ensures everything runs at run time, instead of after
     return Commands.defer(
         () -> {
