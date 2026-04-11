@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -23,9 +24,6 @@ public class Game {
   private SwerveSubsystem drivebase;
   private CANFuelSubsystem fuel;
 
-  private static final double FIELD_LENGTH = 16.51;
-  private static final double FIELD_WIDTH = 8.04;
-
   // **Pose for red alliance to the hub in meters and degrees. */
   public static final Pose2d RED_HUB_CENTER =
       new Pose2d(new Translation2d(11.915, 4.035), new Rotation2d());
@@ -44,7 +42,7 @@ public class Game {
 
   /** Pose for blue alliance position in front of the outpost in meters and degrees. */
   public static final Pose2d BLUE_OUTPOST_LOAD =
-      new Pose2d(new Translation2d(0.53, 0.64), Rotation2d.fromDegrees(180.0));
+      new Pose2d(new Translation2d(0.53, 0.64), Rotation2d.fromDegrees(0.0));
 
   /** Constructor for the Game class. */
   public Game(RobotContainer robotContainer) {
@@ -145,14 +143,14 @@ public class Game {
 
   /** Mirror the pose between left and right side of the field. */
   public Pose2d mirrorPose(Pose2d pose) {
-    return new Pose2d(pose.getX(), FIELD_WIDTH - pose.getY(), pose.getRotation());
+    return new Pose2d(pose.getX(), FlippingUtil.fieldSizeY - pose.getY(), pose.getRotation());
   }
 
   /** Flip the pose between blue and red alliance. */
   public Pose2d flipPose(Pose2d pose) {
     return new Pose2d(
-        FIELD_LENGTH - pose.getX(),
-        FIELD_WIDTH - pose.getY(),
+        FlippingUtil.fieldSizeX - pose.getX(),
+        FlippingUtil.fieldSizeY - pose.getY(),
         pose.getRotation().minus(Rotation2d.fromDegrees(180)));
   }
 
