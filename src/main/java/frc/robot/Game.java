@@ -4,6 +4,7 @@ import com.pathplanner.lib.path.GoalEndState;
 import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
+import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -39,46 +40,30 @@ public class Game {
       new Pose2d(new Translation2d(4.626, 4.035), new Rotation2d());
 
   // pose for the blue alliance to the upper trench in meters and degrees
-  public static final Pose2d BLUE_TRENCH_UPPER_CENTER =
-      new Pose2d(new Translation2d(4.626, 7.376), Rotation2d.fromDegrees(0));
+  public static final Pose2d BLUE_TRENCH_LEFT_CENTER =
+      new Pose2d(new Translation2d(2.995, 7.376), Rotation2d.fromDegrees(0));
   // pose for the blue alliance to the lower trench in meters and degrees
-  public static final Pose2d BLUE_TRENCH_LOWER_CENTER =
-      new Pose2d(new Translation2d(4.626, 0.592), Rotation2d.fromDegrees(0));
-  public static final Pose2d RED_TRENCH_UPPER_CENTER =
-      new Pose2d(new Translation2d(11.552, 7.376), Rotation2d.fromDegrees(180));
-  // pose for the red alliance to the lower trench in meters and degrees
-  public static final Pose2d RED_TRENCH_LOWER_CENTER =
-      new Pose2d(new Translation2d(11.552, 0.592), Rotation2d.fromDegrees(180));
+  public static final Pose2d BLUE_TRENCH_RIGHT_CENTER =
+      new Pose2d(new Translation2d(2.995, 0.592), Rotation2d.fromDegrees(0));
 
-  public static final Pose2d RED_BUMP_UPPER_CENTER =
-      new Pose2d(new Translation2d(11.552, 5.611), Rotation2d.fromDegrees(135));
-  public static final Pose2d RED_BUMP_LOWER_CENTER =
-      new Pose2d(new Translation2d(11.552, 2.502), Rotation2d.fromDegrees(180));
-  public static final Pose2d BLUE_BUMP_UPPER_CENTER =
-      new Pose2d(new Translation2d(4.626, 5.611), Rotation2d.fromDegrees(0));
-  public static final Pose2d BLUE_BUMP_LOWER_CENTER =
-      new Pose2d(new Translation2d(4.626, 2.502), Rotation2d.fromDegrees(0));
+  public static final double FIELD_MIDLINE_Y = FlippingUtil.fieldSizeY / 2.0;
 
-  public static final Pose2d RED_BUMP_LOWER_APPROACH =
-      new Pose2d(new Translation2d(9.067, 2.502), Rotation2d.fromDegrees(180));
-  public static final Pose2d RED_BUMP_UPPER_APPROACH =
-      new Pose2d(new Translation2d(9.067, 5.611), Rotation2d.fromDegrees(180));
-  public static final Pose2d BLUE_BUMP_LOWER_APPROACH =
-      new Pose2d(new Translation2d(6.995, 2.502), Rotation2d.fromDegrees(0));
-  public static final Pose2d BLUE_BUMP_UPPER_APPROACH =
+  public static final Pose2d BLUE_BUMP_LEFT_CENTER =
+      new Pose2d(new Translation2d(2.995, 5.611), Rotation2d.fromDegrees(0));
+  public static final Pose2d BLUE_BUMP_RIGHT_CENTER =
+      new Pose2d(new Translation2d(2.995, 2.502), Rotation2d.fromDegrees(0));
+
+  public static final Pose2d BLUE_BUMP_LEFT_APPROACH =
       new Pose2d(new Translation2d(6.995, 5.611), Rotation2d.fromDegrees(0));
+  public static final Pose2d BLUE_BUMP_RIGHT_APPROACH =
+      new Pose2d(new Translation2d(6.995, 2.502), Rotation2d.fromDegrees(0));
 
   // pose for the trench approaches
 
-  public static final Pose2d BLUE_TRENCH_LOWER_APPROACH =
-      new Pose2d(new Translation2d(2.995, 0.592), Rotation2d.fromDegrees(0));
-  public static final Pose2d BLUE_TRENCH_UPPER_APPROACH =
-      new Pose2d(new Translation2d(2.995, 7.376), Rotation2d.fromDegrees(0));
-
-  public static final Pose2d RED_TRENCH_LOWER_APPROACH =
-      new Pose2d(new Translation2d(13.067, 0.592), Rotation2d.fromDegrees(180));
-  public static final Pose2d RED_TRENCH_UPPER_APPROACH =
-      new Pose2d(new Translation2d(13.260, 7.214), Rotation2d.fromDegrees(210));
+  public static final Pose2d BLUE_TRENCH_RIGHT_APPROACH =
+      new Pose2d(new Translation2d(6.000, 0.592), Rotation2d.fromDegrees(0));
+  public static final Pose2d BLUE_TRENCH_LEFT_APPROACH =
+      new Pose2d(new Translation2d(6.000, 7.376), Rotation2d.fromDegrees(0));
 
   private static final double HUB_HEADING_TOL_DEG = 2.5;
   private static final double HUB_MIN_RADIUS_M = Units.feetToMeters(4.0);
@@ -128,6 +113,14 @@ public class Game {
     }
   }
 
+  public boolean isLeftTrench() {
+    if (isRedAlliance()) {
+      return drivebase.getPose().getY() < FIELD_MIDLINE_Y;
+    } else {
+      return drivebase.getPose().getY() > FIELD_MIDLINE_Y;
+    }
+  }
+
   /**
    * Calculate the distance to the alliance hub.
    *
@@ -150,46 +143,6 @@ public class Game {
 
   // calculate the angle to the trench as Rotation2d
 
-  public Rotation2d getAngleToTrench() {
-    if (isRedAlliance()) {
-      if (isUpperTrench()) {
-        Pose2d trenchPos = RED_TRENCH_UPPER_CENTER;
-        return trenchPos.getTranslation().minus(drivebase.getPose().getTranslation()).getAngle();
-      } else {
-        Pose2d trenchPos = RED_TRENCH_LOWER_CENTER;
-        return trenchPos.getTranslation().minus(drivebase.getPose().getTranslation()).getAngle();
-      }
-    } else {
-      if (isUpperTrench()) {
-        Pose2d trenchPos = BLUE_TRENCH_UPPER_CENTER;
-        return trenchPos.getTranslation().minus(drivebase.getPose().getTranslation()).getAngle();
-      } else {
-        Pose2d trenchPos = BLUE_TRENCH_LOWER_CENTER;
-        return trenchPos.getTranslation().minus(drivebase.getPose().getTranslation()).getAngle();
-      }
-    }
-  }
-
-  public Rotation2d getAngleToBump() {
-    if (isRedAlliance()) {
-      if (isUpperTrench()) {
-        Pose2d trenchPos = RED_BUMP_UPPER_CENTER;
-        return trenchPos.getTranslation().minus(drivebase.getPose().getTranslation()).getAngle();
-      } else {
-        Pose2d trenchPos = RED_BUMP_LOWER_CENTER;
-        return trenchPos.getTranslation().minus(drivebase.getPose().getTranslation()).getAngle();
-      }
-    } else {
-      if (isUpperTrench()) {
-        Pose2d trenchPos = BLUE_BUMP_UPPER_CENTER;
-        return trenchPos.getTranslation().minus(drivebase.getPose().getTranslation()).getAngle();
-      } else {
-        Pose2d trenchPos = BLUE_BUMP_LOWER_CENTER;
-        return trenchPos.getTranslation().minus(drivebase.getPose().getTranslation()).getAngle();
-      }
-    }
-  }
-
   private Pose2d getHubCenterPose() {
     var alliance = DriverStation.getAlliance();
     if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
@@ -201,72 +154,35 @@ public class Game {
   // determine which trench to pass through
 
   private Pose2d getTrenchCenterPose() {
-    var alliance = DriverStation.getAlliance();
-
-    if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue && isUpperTrench()) {
-      return BLUE_TRENCH_UPPER_CENTER;
-    } else if (alliance.isPresent()
-        && alliance.isPresent()
-        && alliance.get() == DriverStation.Alliance.Blue
-        && !isUpperTrench()) {
-      return BLUE_TRENCH_LOWER_CENTER;
-    } else if (alliance.isPresent()
-        && alliance.get() == DriverStation.Alliance.Red
-        && isUpperTrench()) {
-      return BLUE_TRENCH_LOWER_CENTER;
+    if (isLeftTrench()) {
+      return BLUE_TRENCH_LEFT_CENTER;
     } else {
-      return BLUE_TRENCH_UPPER_CENTER;
+      return BLUE_TRENCH_RIGHT_CENTER;
     }
   }
 
   private Pose2d getTrenchApproachPose() {
-    var alliance = DriverStation.getAlliance();
-    if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Blue && isUpperTrench()) {
-      return BLUE_TRENCH_UPPER_APPROACH;
-    } else if (alliance.isPresent()
-        && alliance.get() == DriverStation.Alliance.Blue
-        && !isUpperTrench()) {
-      return BLUE_TRENCH_LOWER_APPROACH;
-    } else if (alliance.isPresent()
-        && alliance.get() == DriverStation.Alliance.Red
-        && isUpperTrench()) {
-      return BLUE_TRENCH_LOWER_APPROACH;
+    if (isLeftTrench()) {
+      return BLUE_TRENCH_LEFT_APPROACH;
     } else {
-      return BLUE_TRENCH_UPPER_APPROACH;
+      return BLUE_TRENCH_RIGHT_APPROACH;
     }
   }
 
   public Pose2d getBumpCenterPose() {
-    var alliance = DriverStation.getAlliance();
-    if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red && isUpperTrench()) {
-      return RED_BUMP_UPPER_CENTER;
-    } else if (alliance.isPresent()
-        && alliance.get() == DriverStation.Alliance.Red
-        && !isUpperTrench()) {
-      return RED_BUMP_LOWER_CENTER;
-    } else if (alliance.isPresent()
-        && alliance.get() == DriverStation.Alliance.Blue
-        && isUpperTrench()) {
-      return BLUE_BUMP_UPPER_CENTER;
+
+    if (isLeftTrench()) {
+      return BLUE_BUMP_LEFT_CENTER;
     } else {
-      return BLUE_BUMP_LOWER_CENTER;
+      return BLUE_BUMP_RIGHT_CENTER;
     }
   }
 
   public Pose2d getBumpApproachPose() {
-    var alliance = DriverStation.getAlliance();
-    if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red && isUpperTrench()) {
-      return RED_BUMP_UPPER_APPROACH;
-    } else if (alliance.isPresent()
-        && alliance.get() == DriverStation.Alliance.Red
-        && !isUpperTrench()) {
-      return RED_BUMP_LOWER_APPROACH;
-    } else if (alliance.isPresent()
-        && alliance.get() == DriverStation.Alliance.Blue
-        && isUpperTrench()) {
-      return BLUE_BUMP_UPPER_APPROACH;
+    if (isLeftTrench()) {
+      return BLUE_BUMP_LEFT_APPROACH;
     } else {
-      return BLUE_BUMP_LOWER_APPROACH;
+      return BLUE_BUMP_RIGHT_APPROACH;
     }
   }
 
@@ -323,6 +239,17 @@ public class Game {
     return robotPose.getTranslation().minus(getHubCenterPose().getTranslation());
   }
 
+  public boolean isRobotSafeAtTrench() {
+    Pose2d robotPose = drivebase.getPose();
+    Pose2d trenchPose = getTrenchCenterPose();
+
+    if (robotPose.getX() - trenchPose.getX() < 0.5 && robotPose.getX() - trenchPose.getX() > -0.5) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   public Translation2d getTrenchToRobotVector() {
     Pose2d robotPose = drivebase.getPose();
     return robotPose.getTranslation().minus(getTrenchCenterPose().getTranslation());
@@ -359,14 +286,24 @@ public class Game {
           Pose2d trenchCenter = getTrenchCenterPose();
           List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(trenchCenter, approachPose);
 
+          // If we're already close to the trench, just drive straight to it instead of following a
+          // path
+          var EndAngle = 90;
+          if (!isRedAlliance()) {
+            EndAngle = 270;
+          }
           PathPlannerPath driveTrench =
               new PathPlannerPath(
                   waypoints,
                   DriveConstants.DRIVE_POSE_CONSTRAINTS,
-                  new IdealStartingState(1.5, Rotation2d.fromDegrees(90)),
-                  new GoalEndState(1.0, Rotation2d.fromDegrees(90)));
+                  new IdealStartingState(2.0, approachPose.getRotation()),
+                  new GoalEndState(1.0, Rotation2d.fromDegrees(EndAngle)));
 
+          // if (isRobotSafeAtTrench()) {
           return drivebase.driveAndFollowPath(driveTrench);
+          // } else {
+          // return null;
+          // }
         },
         Set.of(drivebase));
   }
@@ -376,8 +313,19 @@ public class Game {
         () -> {
           Pose2d approachPose = getBumpApproachPose();
           Pose2d bumpCenter = getBumpCenterPose();
+          List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(approachPose, bumpCenter);
+          var EndAngle = 90;
+          if (!isRedAlliance()) {
+            EndAngle = 270;
+          }
+          PathPlannerPath driveBump =
+              new PathPlannerPath(
+                  waypoints,
+                  DriveConstants.DRIVE_POSE_CONSTRAINTS,
+                  new IdealStartingState(2.0, approachPose.getRotation()),
+                  new GoalEndState(1.0, Rotation2d.fromDegrees(EndAngle)));
 
-          return drivebase.driveToPosePID(approachPose, bumpCenter);
+          return drivebase.driveAndFollowPath(driveBump);
         },
         Set.of(drivebase));
   }
