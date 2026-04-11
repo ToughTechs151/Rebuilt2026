@@ -41,10 +41,15 @@ public class Game {
 
   // pose for the blue alliance to the upper trench in meters and degrees
   public static final Pose2d BLUE_TRENCH_LEFT_CENTER =
-      new Pose2d(new Translation2d(2.995, 7.376), Rotation2d.fromDegrees(0));
+      new Pose2d(new Translation2d(2.395, 7.376), Rotation2d.fromDegrees(0));
   // pose for the blue alliance to the lower trench in meters and degrees
   public static final Pose2d BLUE_TRENCH_RIGHT_CENTER =
-      new Pose2d(new Translation2d(2.995, 0.592), Rotation2d.fromDegrees(0));
+      new Pose2d(new Translation2d(2.395, 0.592), Rotation2d.fromDegrees(0));
+
+  public static final Pose2d BLUE_TRENCH_RIGHT_APPROACH =
+      new Pose2d(new Translation2d(6.000, 0.592), Rotation2d.fromDegrees(0));
+  public static final Pose2d BLUE_TRENCH_LEFT_APPROACH =
+      new Pose2d(new Translation2d(6.000, 7.376), Rotation2d.fromDegrees(0));
 
   public static final double FIELD_MIDLINE_Y = FlippingUtil.fieldSizeY / 2.0;
 
@@ -54,16 +59,11 @@ public class Game {
       new Pose2d(new Translation2d(2.995, 2.502), Rotation2d.fromDegrees(0));
 
   public static final Pose2d BLUE_BUMP_LEFT_APPROACH =
-      new Pose2d(new Translation2d(6.995, 5.611), Rotation2d.fromDegrees(0));
+      new Pose2d(new Translation2d(5.995, 5.611), Rotation2d.fromDegrees(0));
   public static final Pose2d BLUE_BUMP_RIGHT_APPROACH =
-      new Pose2d(new Translation2d(6.995, 2.502), Rotation2d.fromDegrees(0));
+      new Pose2d(new Translation2d(5.995, 2.502), Rotation2d.fromDegrees(0));
 
   // pose for the trench approaches
-
-  public static final Pose2d BLUE_TRENCH_RIGHT_APPROACH =
-      new Pose2d(new Translation2d(6.000, 0.592), Rotation2d.fromDegrees(0));
-  public static final Pose2d BLUE_TRENCH_LEFT_APPROACH =
-      new Pose2d(new Translation2d(6.000, 7.376), Rotation2d.fromDegrees(0));
 
   private static final double HUB_HEADING_TOL_DEG = 2.5;
   private static final double HUB_MIN_RADIUS_M = Units.feetToMeters(4.0);
@@ -94,24 +94,9 @@ public class Game {
     return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
   }
 
-  public boolean isNeutralZone() {
-    if (drivebase.getPose().getX() > 5 && drivebase.getPose().getX() < 10) {
-      return true;
-    }
-    return false;
-  }
-
   /*
    determine which trench to pass through
   */
-
-  public boolean isUpperTrench() {
-    if (drivebase.getPose().getY() > 4) {
-      return true;
-    } else {
-      return false;
-    }
-  }
 
   public boolean isLeftTrench() {
     if (isRedAlliance()) {
@@ -170,7 +155,6 @@ public class Game {
   }
 
   public Pose2d getBumpCenterPose() {
-
     if (isLeftTrench()) {
       return BLUE_BUMP_LEFT_CENTER;
     } else {
@@ -191,9 +175,6 @@ public class Game {
    *
    * @return The pose of the robot.
    */
-  private Pose2d getRobotPose() {
-    return drivebase.getPose();
-  }
 
   /**
    * Returns true if the robot is within the defined distance from the hub and aimed towards the
@@ -239,28 +220,8 @@ public class Game {
     return robotPose.getTranslation().minus(getHubCenterPose().getTranslation());
   }
 
-  public boolean isRobotSafeAtTrench() {
-    Pose2d robotPose = drivebase.getPose();
-    Pose2d trenchPose = getTrenchCenterPose();
-
-    if (robotPose.getX() - trenchPose.getX() < 0.5 && robotPose.getX() - trenchPose.getX() > -0.5) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  public Translation2d getTrenchToRobotVector() {
-    Pose2d robotPose = drivebase.getPose();
-    return robotPose.getTranslation().minus(getTrenchCenterPose().getTranslation());
-  }
-
   public Rotation2d getHubToRobotAngle() {
     return getHubToRobotVector().getAngle();
-  }
-
-  public Rotation2d getTrenchToRobotAngle() {
-    return getTrenchToRobotVector().getAngle();
   }
 
   /** Command to drive with the launcher aimed at the alliance hub. */
@@ -284,26 +245,16 @@ public class Game {
         () -> {
           Pose2d approachPose = getTrenchApproachPose();
           Pose2d trenchCenter = getTrenchCenterPose();
-          List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(trenchCenter, approachPose);
+          List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(approachPose, trenchCenter);
 
-          // If we're already close to the trench, just drive straight to it instead of following a
-          // path
-          var EndAngle = 90;
-          if (!isRedAlliance()) {
-            EndAngle = 270;
-          }
           PathPlannerPath driveTrench =
               new PathPlannerPath(
                   waypoints,
                   DriveConstants.DRIVE_POSE_CONSTRAINTS,
-                  new IdealStartingState(2.0, approachPose.getRotation()),
-                  new GoalEndState(1.0, Rotation2d.fromDegrees(EndAngle)));
+                  new IdealStartingState(2.0, Rotation2d.fromDegrees(0)),
+                  new GoalEndState(1.0, Rotation2d.fromDegrees(0)));
 
-          // if (isRobotSafeAtTrench()) {
           return drivebase.driveAndFollowPath(driveTrench);
-          // } else {
-          // return null;
-          // }
         },
         Set.of(drivebase));
   }
@@ -314,16 +265,13 @@ public class Game {
           Pose2d approachPose = getBumpApproachPose();
           Pose2d bumpCenter = getBumpCenterPose();
           List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(approachPose, bumpCenter);
-          var EndAngle = 90;
-          if (!isRedAlliance()) {
-            EndAngle = 270;
-          }
+
           PathPlannerPath driveBump =
               new PathPlannerPath(
                   waypoints,
                   DriveConstants.DRIVE_POSE_CONSTRAINTS,
-                  new IdealStartingState(2.0, approachPose.getRotation()),
-                  new GoalEndState(1.0, Rotation2d.fromDegrees(EndAngle)));
+                  new IdealStartingState(2.0, Rotation2d.fromDegrees(45)),
+                  new GoalEndState(1.0, Rotation2d.fromDegrees(45)));
 
           return drivebase.driveAndFollowPath(driveBump);
         },
@@ -342,10 +290,10 @@ public class Game {
           // Limit the target angle to a range in the alliance zone
           double angleToHub;
           if (drivebase.isRedAlliance()) {
-            angleToHub = MathUtil.clamp(hubAngle.getDegrees(), -45, 45);
+            angleToHub = MathUtil.clamp(hubAngle.getDegrees(), -35, 35);
           } else {
             angleToHub =
-                MathUtil.clamp(hubAngle.minus(Rotation2d.fromDegrees(180)).getDegrees(), -45, 45)
+                MathUtil.clamp(hubAngle.minus(Rotation2d.fromDegrees(180)).getDegrees(), -35, 35)
                     + 180.0;
           }
           hubAngle = Rotation2d.fromDegrees(angleToHub);
