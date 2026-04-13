@@ -264,7 +264,7 @@ public class Game {
                   waypoints,
                   DriveConstants.DRIVE_TRENCH_CONSTRAINTS,
                   new IdealStartingState(1.0, Rotation2d.fromDegrees(0)),
-                  new GoalEndState(1.0, Rotation2d.fromDegrees(0)));
+                  new GoalEndState(0.5, Rotation2d.fromDegrees(0)));
           // return the command to drive to appraoch pose and
           // follow path from appraoch to trenchcenter
           return drivebase.driveAndFollowPath(driveTrench);
