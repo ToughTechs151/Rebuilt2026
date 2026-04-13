@@ -161,13 +161,19 @@ public final class Constants {
     public static final Pose2d RED_START_POSE =
         new Pose2d(new Translation2d(Meter.of(13.0), Meter.of(4.0)), Rotation2d.fromDegrees(0));
 
-    // Constants for drive to pose initial path following
+    // Constants for drive to pose and path following
     /**
-     * Path constraints for initial pathfinding (max velocity, acceleration, angular velocity,
-     * angular acceleration).
+     * Path constraints for initial pathfinding and following types of paths (max velocity,
+     * acceleration, angular velocity, angular acceleration).
      */
     public static final PathConstraints DRIVE_POSE_CONSTRAINTS =
+        new PathConstraints(3.0, 6.0, Units.degreesToRadians(360), Units.degreesToRadians(720));
+
+    public static final PathConstraints DRIVE_TRENCH_CONSTRAINTS =
         new PathConstraints(2.0, 4.0, Units.degreesToRadians(180), Units.degreesToRadians(720));
+
+    public static final PathConstraints DRIVE_BUMP_CONSTRAINTS =
+        new PathConstraints(1.5, 4.0, Units.degreesToRadians(180), Units.degreesToRadians(720));
 
     /** Distance from target at which to switch to PID control in meters. */
     public static final double DISTANCE_UNTIL_PID = Units.inchesToMeters(3);
