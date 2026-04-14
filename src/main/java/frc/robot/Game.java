@@ -1,5 +1,10 @@
 package frc.robot;
 
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.IdealStartingState;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
+import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -11,17 +16,18 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.CANFuelSubsystem;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
 /** The Game class contains functions specific to the game. */
 public class Game {
+
   private RobotContainer robotContainer;
   private SwerveSubsystem drivebase;
-  private CANFuelSubsystem fuel;
 
   // **Pose for red alliance to the hub in meters and degrees. */
   public static final Pose2d RED_HUB_CENTER =
@@ -31,6 +37,34 @@ public class Game {
   public static final Pose2d BLUE_HUB_CENTER =
       new Pose2d(new Translation2d(4.626, 4.035), new Rotation2d());
 
+  // pose for the blue alliance left trench exit in meters and degrees (alliance side)
+  public static final Pose2d BLUE_TRENCH_LEFT_EXIT =
+      new Pose2d(new Translation2d(3.1, 7.376), Rotation2d.fromDegrees(180));
+  // pose for the blue alliance right trench exit in meters and degrees (alliance side)
+  public static final Pose2d BLUE_TRENCH_RIGHT_EXIT =
+      new Pose2d(new Translation2d(3.1, 0.592), Rotation2d.fromDegrees(180));
+  // pose for the blue alliance right trench approach/entrance in meters and degrees(neutral side)
+  public static final Pose2d BLUE_TRENCH_RIGHT_APPROACH =
+      new Pose2d(new Translation2d(6.000, 0.592), Rotation2d.fromDegrees(180));
+  // pose for the blue alliance left trench approach/entrance in meters and degrees (neutral side)
+  public static final Pose2d BLUE_TRENCH_LEFT_APPROACH =
+      new Pose2d(new Translation2d(6.000, 7.376), Rotation2d.fromDegrees(180));
+  // the y coordinate of the midline of the field
+  public static final double FIELD_MIDLINE_Y = FlippingUtil.fieldSizeY / 2.0;
+  // pose for the blue alliance left bump exit in meters and degrees (alliance side)
+  public static final Pose2d BLUE_BUMP_LEFT_EXIT =
+      new Pose2d(new Translation2d(2.995, 5.611), Rotation2d.fromDegrees(180));
+  // pose for the blue alliance right bump exit in meters and degrees (alliance side)
+  public static final Pose2d BLUE_BUMP_RIGHT_EXIT =
+      new Pose2d(new Translation2d(2.995, 2.502), Rotation2d.fromDegrees(180));
+  // pose for the blue alliance left bump approach/entrance in meters and degrees (neutral side)
+  public static final Pose2d BLUE_BUMP_LEFT_APPROACH =
+      new Pose2d(new Translation2d(5.995, 5.611), Rotation2d.fromDegrees(180));
+  // pose for the blue alliance right bump approach/entrance in meters and degrees(neutral side)
+  public static final Pose2d BLUE_BUMP_RIGHT_APPROACH =
+      new Pose2d(new Translation2d(5.995, 2.502), Rotation2d.fromDegrees(180));
+
+  // constants  for being at the hub and aimed towards it
   private static final double HUB_HEADING_TOL_DEG = 2.5;
   private static final double HUB_MIN_RADIUS_M = Units.feetToMeters(4.0);
   private static final double HUB_MAX_RADIUS_M = Units.feetToMeters(10.0);
@@ -38,6 +72,10 @@ public class Game {
   // Offsets for robot when launching and approaching
   private static final double LAUNCH_OFFSET = Units.feetToMeters(4.5);
   private static final double APPROACH_OFFSET = Units.feetToMeters(5.5);
+
+  /** Pose for blue alliance position in front of the outpost in meters and degrees. */
+  public static final Pose2d BLUE_OUTPOST_LOAD =
+      new Pose2d(new Translation2d(0.53, 0.64), Rotation2d.fromDegrees(0.0));
 
   /** Constructor for the Game class. */
   public Game(RobotContainer robotContainer) {
@@ -47,7 +85,6 @@ public class Game {
   /** Initialize the game class by setting up subsystems. */
   public void init() {
     this.drivebase = robotContainer.getDriveSubsystem();
-    this.fuel = robotContainer.getBallSubsystem();
   }
 
   /**
@@ -58,6 +95,15 @@ public class Game {
   public static boolean isRedAlliance() {
     var alliance = DriverStation.getAlliance();
     return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
+  }
+
+  /** Determine which trench to pass through. */
+  public boolean isLeftTrench() {
+    if (isRedAlliance()) {
+      return drivebase.getPose().getY() < FIELD_MIDLINE_Y;
+    } else {
+      return drivebase.getPose().getY() > FIELD_MIDLINE_Y;
+    }
   }
 
   /**
@@ -80,12 +126,49 @@ public class Game {
     return hubPos.getTranslation().minus(drivebase.getPose().getTranslation()).getAngle();
   }
 
+  /** Determines which hub center pose to use based on alliance color. */
   private Pose2d getHubCenterPose() {
     var alliance = DriverStation.getAlliance();
     if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red) {
       return RED_HUB_CENTER;
     }
     return BLUE_HUB_CENTER;
+  }
+
+  /** determine which trench exit pose to use */
+  private Pose2d getTrenchExitPose() {
+    if (isLeftTrench()) {
+      return BLUE_TRENCH_LEFT_EXIT;
+    } else {
+      return BLUE_TRENCH_RIGHT_EXIT;
+    }
+  }
+
+  /** determine which trench approach pose to use */
+  private Pose2d getTrenchApproachPose() {
+    if (isLeftTrench()) {
+      return BLUE_TRENCH_LEFT_APPROACH;
+    } else {
+      return BLUE_TRENCH_RIGHT_APPROACH;
+    }
+  }
+
+  /** determine which bump exit pose to use. */
+  public Pose2d getBumpExitPose() {
+    if (isLeftTrench()) {
+      return BLUE_BUMP_LEFT_EXIT;
+    } else {
+      return BLUE_BUMP_RIGHT_EXIT;
+    }
+  }
+
+  /** determine which bump approach pose to use. */
+  public Pose2d getBumpApproachPose() {
+    if (isLeftTrench()) {
+      return BLUE_BUMP_LEFT_APPROACH;
+    } else {
+      return BLUE_BUMP_RIGHT_APPROACH;
+    }
   }
 
   /**
@@ -112,6 +195,8 @@ public class Game {
     return headingErrorDeg <= HUB_HEADING_TOL_DEG;
   }
 
+  // returns true if the robot is on the alliance side of the hub, false otherwise
+
   private boolean isRobotOnAllianceSideOfHub(Pose2d robotPose, Pose2d hubPose) {
     Optional<Alliance> alliance = DriverStation.getAlliance();
     if (alliance.isEmpty()) {
@@ -127,13 +212,30 @@ public class Game {
     }
   }
 
+  // calculates the vector from the hub to the robot
+
   public Translation2d getHubToRobotVector() {
     Pose2d robotPose = drivebase.getPose();
     return robotPose.getTranslation().minus(getHubCenterPose().getTranslation());
   }
 
+  // calculates the angle from the hub to the robot
+
   public Rotation2d getHubToRobotAngle() {
     return getHubToRobotVector().getAngle();
+  }
+
+  /** Mirror the pose between left and right side of the field. */
+  public Pose2d mirrorPose(Pose2d pose) {
+    return new Pose2d(pose.getX(), FlippingUtil.fieldSizeY - pose.getY(), pose.getRotation());
+  }
+
+  /** Flip the pose between blue and red alliance. */
+  public Pose2d flipPose(Pose2d pose) {
+    return new Pose2d(
+        FlippingUtil.fieldSizeX - pose.getX(),
+        FlippingUtil.fieldSizeY - pose.getY(),
+        pose.getRotation().minus(Rotation2d.fromDegrees(180)));
   }
 
   /** Command to drive with the launcher aimed at the alliance hub. */
@@ -148,10 +250,52 @@ public class Game {
     SmartDashboard.putNumber("Hub/Angle", getAngleToHub().getDegrees());
   }
 
-  /**
-   * Creates a command to drive diagonally in front of the nearest hub. The target is exactly a
-   * 7-foot hypotenuse away.
-   */
+  /** Command to drive the robot through the trench. */
+  public Command driveTrenchCommand() {
+    return Commands.defer(
+        () -> {
+          // poses for the trench approach and exit
+          Pose2d approachPose = getTrenchApproachPose();
+          Pose2d exitPose = getTrenchExitPose();
+          List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(approachPose, exitPose);
+          // create the path with constraints and starting/ending states
+          PathPlannerPath driveTrench =
+              new PathPlannerPath(
+                  waypoints,
+                  DriveConstants.DRIVE_TRENCH_CONSTRAINTS,
+                  new IdealStartingState(1.0, Rotation2d.fromDegrees(0)),
+                  new GoalEndState(0.5, Rotation2d.fromDegrees(0)));
+          // return the command to drive to appraoch pose and
+          // follow path from appraoch to trenchcenter
+          return drivebase.driveAndFollowPath(driveTrench);
+        },
+        Set.of(drivebase));
+  }
+
+  /** Command to drive the robot through the bump. */
+  public Command driveBumpCommand() {
+    return Commands.defer(
+        () -> {
+          // poses for the bump approach and exit
+          Pose2d approachPose = getBumpApproachPose();
+          Pose2d exitPose = getBumpExitPose();
+          // create a list of the points to pass through
+          List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(approachPose, exitPose);
+          // create the path with constraints and starting/ending states
+          PathPlannerPath driveBump =
+              new PathPlannerPath(
+                  waypoints,
+                  DriveConstants.DRIVE_BUMP_CONSTRAINTS,
+                  new IdealStartingState(1.0, Rotation2d.fromDegrees(45)),
+                  new GoalEndState(1.0, Rotation2d.fromDegrees(45)));
+          // return the command to drive to approach pose and follow path
+          // from approach to bump center
+          return drivebase.driveAndFollowPath(driveBump);
+        },
+        Set.of(drivebase));
+  }
+
+  /** Creates a command to drive to the nearest hub and aim for launching. */
   public Command driveHubCommand() {
     // Ensures everything runs at run time, instead of after
     return Commands.defer(
@@ -159,6 +303,7 @@ public class Game {
           // Pose of robot at hub
           Pose2d hubCenter = getHubCenterPose();
           Rotation2d hubAngle = getHubToRobotAngle();
+          // Pose of robot at trench
 
           // Limit the target angle to a range in the alliance zone
           double angleToHub;
@@ -183,6 +328,18 @@ public class Game {
 
           // Return command to drive
           return drivebase.driveToPosePID(approachPose, launchPose);
+        },
+        Set.of(drivebase));
+  }
+
+  /** Creates a command to drive to the alliance output using PID control for alignment. */
+  public Command driveOutpostCommand() {
+    return Commands.defer(
+        () -> {
+          Pose2d targetPose = isRedAlliance() ? flipPose(BLUE_OUTPOST_LOAD) : BLUE_OUTPOST_LOAD;
+
+          // Return command to drive
+          return drivebase.alignToPosePID(targetPose);
         },
         Set.of(drivebase));
   }

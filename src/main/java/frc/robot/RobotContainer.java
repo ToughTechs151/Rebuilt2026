@@ -164,6 +164,7 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "Launch Full", ballSubsystem.launchCommand(false).withTimeout(5.0));
     NamedCommands.registerCommand("Intake", ballSubsystem.intakeCommand().withTimeout(10.0));
+    NamedCommands.registerCommand("Align to Outpost", game.driveOutpostCommand());
 
     // Setup the auto command chooser using the PathPlanner autos
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -198,6 +199,8 @@ public class RobotContainer {
 
     // Drive to a launch position near the hub when the A button is pressed
     driverController.a().whileTrue(game.driveHubCommand().withName("Drive to Hub"));
+    driverController.b().whileTrue(game.driveTrenchCommand().withName("Drive to Trench"));
+    driverController.x().whileTrue(game.driveBumpCommand().withName("Drive to Bump"));
 
     // Drives robot oriented slowly at a set speed based on which of the pov buttons is pressed on
     // the driver's controller

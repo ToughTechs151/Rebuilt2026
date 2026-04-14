@@ -51,6 +51,8 @@ public class FuelSubsystemSim {
       LinearSystemId.createDCMotorSystem(motorGearbox, INTAKE_MOTOR_MOI_KG_METERS2, 1);
   private final DCMotorSim intakeMotorSim = new DCMotorSim(intakePlant, motorGearbox);
 
+  private static boolean enableFuelSim =
+      false; // Set to false to disable simulation of ball movement
   private static final int MAX_BALLS = 20;
   private int ballCount = 0;
   private double launchDelay = 0.0;
@@ -76,7 +78,9 @@ public class FuelSubsystemSim {
     feederSparkSim = new SparkMaxSim(feederMotor, motorGearbox);
     intakeSparkSim = new SparkMaxSim(intakeMotor, motorGearbox);
 
-    configureFuelSim();
+    if (enableFuelSim) {
+      configureFuelSim();
+    }
   }
 
   /** Update the simulation model. */
@@ -94,31 +98,34 @@ public class FuelSubsystemSim {
     intakeSparkSim.iterate(intakeMotorSim.getAngularVelocityRPM(), 12.0, 0.02);
 
     // Launch fuel with a delay between launches
-    if (launchDelay <= 0.0
-        && fuelSubsystem.getLauncherVelocity() > 1000.0
-        && fuelSubsystem.getFeederVelocity() > 1000.0) {
-      launchFuel();
-      launchDelay = TIME_BETWEEN_LAUNCHES;
-    } else {
-      launchDelay -= 0.02;
-    }
+    if (enableFuelSim) {
 
-    // Eject fuel with a delay between each ejection
-    if (ejectDelay <= 0.0
-        && fuelSubsystem.getIntakeVelocity() < -1000.0
-        && fuelSubsystem.getFeederVelocity() > 1000.0) {
-      ejectFuel();
-      ejectDelay = TIME_BETWEEN_EJECTS;
-    } else {
-      ejectDelay -= 0.02;
-    }
+      if (launchDelay <= 0.0
+          && fuelSubsystem.getLauncherVelocity() > 1000.0
+          && fuelSubsystem.getFeederVelocity() > 1000.0) {
+        launchFuel();
+        launchDelay = TIME_BETWEEN_LAUNCHES;
+      } else {
+        launchDelay -= 0.02;
+      }
 
-    // Count down intake delay between
-    if (intakeDelay > 0.0) {
-      intakeDelay -= 0.02;
-    }
+      // Eject fuel with a delay between each ejection
+      if (ejectDelay <= 0.0
+          && fuelSubsystem.getIntakeVelocity() < -1000.0
+          && fuelSubsystem.getFeederVelocity() > 1000.0) {
+        ejectFuel();
+        ejectDelay = TIME_BETWEEN_EJECTS;
+      } else {
+        ejectDelay -= 0.02;
+      }
 
-    FuelSim.getInstance().updateSim();
+      // Count down intake delay between
+      if (intakeDelay > 0.0) {
+        intakeDelay -= 0.02;
+      }
+
+      FuelSim.getInstance().updateSim();
+    }
     SmartDashboard.putNumber("FuelSim/Ball Count", ballCount);
     SmartDashboard.putNumber("FuelSim/Score", FuelSim.getInstance().getScore());
   }
