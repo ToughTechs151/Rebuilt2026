@@ -75,7 +75,7 @@ public class Game {
 
   /** Pose for blue alliance position in front of the outpost in meters and degrees. */
   public static final Pose2d BLUE_OUTPOST_LOAD =
-      new Pose2d(new Translation2d(0.53, 0.64), Rotation2d.fromDegrees(0.0));
+      new Pose2d(new Translation2d(0.38, 0.64), Rotation2d.fromDegrees(0.0));
 
   /** Constructor for the Game class. */
   public Game(RobotContainer robotContainer) {
