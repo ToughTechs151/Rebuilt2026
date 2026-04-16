@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -145,6 +146,15 @@ public class RobotContainer {
       new DeferredCommand(() -> game.aimHubDriveCommand(driveAngularVelocity), Set.of(drivebase))
           .withName("Aim Hub Drive");
 
+  Command aimHub =
+      new DeferredCommand(
+              () ->
+                  game.aimHubDriveCommand(() -> new ChassisSpeeds(0.0, 0.0, 0.0))
+                      .until(game::isRobotReadyAtHub)
+                      .withTimeout(1.0),
+              Set.of(drivebase))
+          .withName("Aim Hub");
+
   private SendableChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -165,6 +175,7 @@ public class RobotContainer {
         "Launch Full", ballSubsystem.launchCommand(false).withTimeout(5.0));
     NamedCommands.registerCommand("Intake", ballSubsystem.intakeCommand().withTimeout(10.0));
     NamedCommands.registerCommand("Align to Outpost", game.driveOutpostCommand());
+    NamedCommands.registerCommand("AimHub", aimHub);
 
     // Setup the auto command chooser using the PathPlanner autos
     autoChooser = AutoBuilder.buildAutoChooser();

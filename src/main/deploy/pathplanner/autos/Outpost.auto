@@ -43,6 +43,12 @@
         {
           "type": "named",
           "data": {
+            "name": "AimHub"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Launch Full"
           }
         }
