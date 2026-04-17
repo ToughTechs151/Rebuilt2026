@@ -175,7 +175,8 @@ public class RobotContainer {
         "Launch Full", ballSubsystem.launchCommand(false).withTimeout(5.0));
     NamedCommands.registerCommand("Intake", ballSubsystem.intakeCommand().withTimeout(10.0));
     NamedCommands.registerCommand("Align to Outpost", game.driveOutpostCommand());
-    NamedCommands.registerCommand("AimHub", aimHub);
+    NamedCommands.registerCommand(
+        "AimHub", aimHub.andThen(Commands.runOnce(drivebase::lock, drivebase)));
 
     // Setup the auto command chooser using the PathPlanner autos
     autoChooser = AutoBuilder.buildAutoChooser();
