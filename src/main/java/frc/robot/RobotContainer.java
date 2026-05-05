@@ -170,9 +170,8 @@ public class RobotContainer {
     drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
 
     // Named Commands for Autos
-    NamedCommands.registerCommand("Launch 8", ballSubsystem.launchCommand(false).withTimeout(3.0));
-    NamedCommands.registerCommand(
-        "Launch Full", ballSubsystem.launchCommand(false).withTimeout(5.0));
+    NamedCommands.registerCommand("Launch 8", ballSubsystem.launchCommand(0).withTimeout(3.0));
+    NamedCommands.registerCommand("Launch Full", ballSubsystem.launchCommand(0).withTimeout(5.0));
     NamedCommands.registerCommand("Intake", ballSubsystem.intakeCommand().withTimeout(10.0));
     NamedCommands.registerCommand("Align to Outpost", game.driveOutpostCommand());
     NamedCommands.registerCommand(
@@ -234,14 +233,14 @@ public class RobotContainer {
 
     // While the right bumper on the operator controller is held, spin up for 1
     // second, then launch fuel. When the button is released, stop.
-    operatorController
-        .rightBumper()
-        .whileTrue(ballSubsystem.launchCommand(false).withName("Launch"));
+    operatorController.rightBumper().whileTrue(ballSubsystem.launchCommand(0).withName("Launch"));
     // While the A button is held on the operator controller, eject fuel back out
     // the intake
     operatorController.a().whileTrue(ballSubsystem.ejectCommand().withName("Eject"));
 
-    operatorController.x().whileTrue(ballSubsystem.launchCommand(true).withName("Passing"));
+    operatorController.x().whileTrue(ballSubsystem.launchCommand(1).withName("Passing"));
+
+    operatorController.y().whileTrue(ballSubsystem.launchCommand(2).withName("Enemy Passing"));
   }
 
   /**
