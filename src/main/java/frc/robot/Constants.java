@@ -136,7 +136,7 @@ public final class Constants {
     public static final double WHEEL_LOCK_TIME = 10; // seconds
 
     /** Speed scaling factor for POV/directional drive commands. */
-    public static final double POV_SPEED = 0.15;
+    public static final double POV_SPEED = 0.2;
 
     /** Turn scaling factor for POV forward command. */
     public static final double POV_TURNING = 0.50;
@@ -239,6 +239,7 @@ public final class Constants {
     public static final double ENABLE_LAUNCH_TABLE = 1;
     public static final LUT LAUNCH_TABLE = new LUT(new double[][] {{1.5, 2750}, {4.5, 4450}});
     public static final double PASSING_SPEED_RPM = 3500.0;
+    public static final double OPPOSITE_PASSING_SPEED_RPM = 5500.0;
 
     // Constants tunable through TunableNumbers
     public static final double LAUNCHER_SPEED_RPM = 3200.0;

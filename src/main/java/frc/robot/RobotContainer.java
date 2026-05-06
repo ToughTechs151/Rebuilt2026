@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -145,6 +146,15 @@ public class RobotContainer {
       new DeferredCommand(() -> game.aimHubDriveCommand(driveAngularVelocity), Set.of(drivebase))
           .withName("Aim Hub Drive");
 
+  Command aimHub =
+      new DeferredCommand(
+              () ->
+                  game.aimHubDriveCommand(() -> new ChassisSpeeds(0.0, 0.0, 0.0))
+                      .until(game::isRobotReadyAtHub)
+                      .withTimeout(1.0),
+              Set.of(drivebase))
+          .withName("Aim Hub");
+
   private SendableChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -160,11 +170,12 @@ public class RobotContainer {
     drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
 
     // Named Commands for Autos
-    NamedCommands.registerCommand("Launch 8", ballSubsystem.launchCommand(false).withTimeout(3.0));
-    NamedCommands.registerCommand(
-        "Launch Full", ballSubsystem.launchCommand(false).withTimeout(5.0));
+    NamedCommands.registerCommand("Launch 8", ballSubsystem.launchCommand(0).withTimeout(3.0));
+    NamedCommands.registerCommand("Launch Full", ballSubsystem.launchCommand(0).withTimeout(5.0));
     NamedCommands.registerCommand("Intake", ballSubsystem.intakeCommand().withTimeout(10.0));
     NamedCommands.registerCommand("Align to Outpost", game.driveOutpostCommand());
+    NamedCommands.registerCommand(
+        "AimHub", aimHub.andThen(Commands.runOnce(drivebase::lock, drivebase)));
 
     // Setup the auto command chooser using the PathPlanner autos
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -222,14 +233,14 @@ public class RobotContainer {
 
     // While the right bumper on the operator controller is held, spin up for 1
     // second, then launch fuel. When the button is released, stop.
-    operatorController
-        .rightBumper()
-        .whileTrue(ballSubsystem.launchCommand(false).withName("Launch"));
+    operatorController.rightBumper().whileTrue(ballSubsystem.launchCommand(0).withName("Launch"));
     // While the A button is held on the operator controller, eject fuel back out
     // the intake
     operatorController.a().whileTrue(ballSubsystem.ejectCommand().withName("Eject"));
 
-    operatorController.x().whileTrue(ballSubsystem.launchCommand(true).withName("Passing"));
+    operatorController.x().whileTrue(ballSubsystem.launchCommand(1).withName("Passing"));
+
+    operatorController.y().whileTrue(ballSubsystem.launchCommand(2).withName("Enemy Passing"));
   }
 
   /**

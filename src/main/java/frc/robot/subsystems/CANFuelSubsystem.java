@@ -152,13 +152,16 @@ public class CANFuelSubsystem extends SubsystemBase {
   /**
    * A method to set the rollers to values for launching. Finds the needed launcher speed based on
    * the distance from the robot to the hub Feeder voltage is set automatically in the periodic
-   * function based on whether the launcher is up to speed or not to help with launch consistency.
+   * function based on whether the launcher is up to speed or not to help with launch consistency. 0
+   * -> use table unless disabled 1 -> use passing RPM 2 -> use passing from the opponent side RPM
    */
-  public void launch(boolean passing) {
+  public void launch(int passing) {
     loadPidfTunableNumbers();
     launcherEnabled = true;
-    if (passing) {
+    if (passing == 1) {
       launcherGoal = FuelConstants.PASSING_SPEED_RPM;
+    } else if (passing == 2) {
+      launcherGoal = FuelConstants.OPPOSITE_PASSING_SPEED_RPM;
     } else if (enableLaunchTable.get() > 0.0) {
       launcherGoal = FuelConstants.LAUNCH_TABLE.get(game.getDistanceToHub())[1];
     } else {
@@ -180,7 +183,7 @@ public class CANFuelSubsystem extends SubsystemBase {
   }
 
   /** A command factory to turn the launch method into a command that requires this subsystem. */
-  public Command launchCommand(boolean passing) {
+  public Command launchCommand(int passing) {
     return this.runEnd(() -> launch(passing), this::stop);
   }
 
