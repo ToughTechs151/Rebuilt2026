@@ -171,7 +171,9 @@ public class RobotContainer {
 
     // Named Commands for Autos
     NamedCommands.registerCommand("Launch 8", ballSubsystem.launchCommand(0).withTimeout(3.0));
-    NamedCommands.registerCommand("Launch Full", ballSubsystem.launchCommand(0).withTimeout(5.0));
+    NamedCommands.registerCommand(
+        "Launch Full",
+        ballSubsystem.launchCommand(0).withTimeout(5.0).onlyIf(game::isRobotReadyAtHub));
     NamedCommands.registerCommand("Intake", ballSubsystem.intakeCommand().withTimeout(10.0));
     NamedCommands.registerCommand("Align to Outpost", game.driveOutpostCommand());
     NamedCommands.registerCommand(
