@@ -421,10 +421,11 @@ public class Vision {
           distance = target.getBestCameraToTarget().getTranslation().getNorm();
           ambiguity = target.getPoseAmbiguity();
 
-          // Try multi-tag estimation first, as it is usually more accurate. 
+          // Try multi-tag estimation first, as it is usually more accurate.
           visionEst = poseEstimator.estimateCoprocMultiTagPose(change);
 
-          // If no multi-tag result, try single tag. If the ambiguity is too high, discard the result.
+          // If no multi-tag result, try single tag. If the ambiguity is too high, discard the
+          // result.
           if (visionEst.isEmpty()) {
             visionEst = poseEstimator.estimateLowestAmbiguityPose(change);
             if (ambiguity > DriveConstants.MAX_POSE_AMBIGUITY) {
