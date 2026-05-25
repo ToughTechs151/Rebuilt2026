@@ -66,7 +66,7 @@ public class Game {
 
   // constants  for being at the hub and aimed towards it
   private static final double HUB_HEADING_TOL_DEG = 2.5;
-  private static final double HUB_MIN_RADIUS_M = Units.feetToMeters(4.0);
+  private static final double HUB_MIN_RADIUS_M = Units.feetToMeters(3.8);
   private static final double HUB_MAX_RADIUS_M = Units.feetToMeters(10.0);
 
   // Offsets for robot when launching and approaching

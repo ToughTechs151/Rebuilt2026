@@ -127,6 +127,7 @@ public class Vision {
         field2d.getObject("VisionPose").setPose(pose.estimatedPose.toPose2d());
       }
     }
+    updateVisionField(); // Update the field with tracked April tag targets.
   }
 
   /**
@@ -415,17 +416,21 @@ public class Vision {
       double ambiguity = 0;
 
       for (var change : resultsList) {
-        // Check the distance to the April Tag and only use result if within a certain range
         if (change.hasTargets()) {
           var target = change.getBestTarget();
           distance = target.getBestCameraToTarget().getTranslation().getNorm();
           ambiguity = target.getPoseAmbiguity();
-        }
-        if (ambiguity < DriveConstants.MAX_POSE_AMBIGUITY) {
 
+          // Try multi-tag estimation first, as it is usually more accurate.
           visionEst = poseEstimator.estimateCoprocMultiTagPose(change);
+
+          // If no multi-tag result, try single tag. If the ambiguity is too high, discard the
+          // result.
           if (visionEst.isEmpty()) {
             visionEst = poseEstimator.estimateLowestAmbiguityPose(change);
+            if (ambiguity > DriveConstants.MAX_POSE_AMBIGUITY) {
+              visionEst = Optional.empty();
+            }
           }
           updateEstimationStdDevs(visionEst, change.getTargets());
         }
