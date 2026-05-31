@@ -27,6 +27,12 @@
           "data": {
             "pathName": "Center Drive to Dot Left"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Lock Wheel"
+          }
         }
       ]
     }

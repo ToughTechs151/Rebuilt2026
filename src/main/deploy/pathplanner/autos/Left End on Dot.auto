@@ -58,6 +58,12 @@
           "data": {
             "pathName": "Left to Dot"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Lock Wheel"
+          }
         }
       ]
     }

@@ -5,27 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "Center Drive"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Launch Full"
-          }
-        },
-        {
           "type": "wait",
           "data": {
-            "waitTime": 8.5
+            "waitTime": 8.0
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Center Drive to Dot Right"
+            "pathName": "Trench to Dot Right"
           }
         },
         {

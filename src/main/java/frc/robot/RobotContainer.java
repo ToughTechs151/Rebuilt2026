@@ -181,6 +181,8 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "AimHub", aimHub.andThen(Commands.runOnce(drivebase::lock, drivebase)));
 
+    NamedCommands.registerCommand(
+        "Lock Wheel", Commands.run(drivebase::lock, drivebase).repeatedly());
     // Setup the auto command chooser using the PathPlanner autos
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(autoChooser);
