@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Center Drive"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Launch Full"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 8.5
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Center Drive to Dot Left"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Lock Wheel"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

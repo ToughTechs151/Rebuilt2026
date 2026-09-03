@@ -170,7 +170,9 @@ public class RobotContainer {
     drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
 
     // Named Commands for Autos
-    NamedCommands.registerCommand("Launch 8", ballSubsystem.launchCommand(0).withTimeout(3.0));
+    NamedCommands.registerCommand(
+        "Launch 8",
+        ballSubsystem.launchCommand(0).withTimeout(3.0).onlyIf(game::isRobotReadyAtHub));
     NamedCommands.registerCommand(
         "Launch Full",
         ballSubsystem.launchCommand(0).withTimeout(5.0).onlyIf(game::isRobotReadyAtHub));
@@ -179,6 +181,8 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "AimHub", aimHub.andThen(Commands.runOnce(drivebase::lock, drivebase)));
 
+    NamedCommands.registerCommand(
+        "Lock Wheel", Commands.run(drivebase::lock, drivebase).repeatedly());
     // Setup the auto command chooser using the PathPlanner autos
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(autoChooser);
