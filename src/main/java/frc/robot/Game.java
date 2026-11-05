@@ -65,6 +65,7 @@ public class Game {
       new Pose2d(new Translation2d(5.995, 2.502), Rotation2d.fromDegrees(180));
 
   // constants  for being at the hub and aimed towards it
+  private static final double HUB_AIMING_TOL_DEG = 1.0;
   private static final double HUB_HEADING_TOL_DEG = 2.5;
   private static final double HUB_MIN_RADIUS_M = Units.feetToMeters(3.8);
   private static final double HUB_MAX_RADIUS_M = Units.feetToMeters(10.0);
@@ -195,6 +196,23 @@ public class Game {
     return headingErrorDeg <= HUB_HEADING_TOL_DEG;
   }
 
+  /** Returns true if the robot is precisely aimed towards the hub. */
+  public boolean isRobotAimed() {
+    Pose2d robotPose = drivebase.getPose();
+    Pose2d hubPose = getHubCenterPose();
+
+    if (!isRobotOnAllianceSideOfHub(robotPose, hubPose)) {
+      return false;
+    }
+
+    Translation2d hubToRobot = robotPose.getTranslation().minus(hubPose.getTranslation());
+    Rotation2d desiredHeading = hubToRobot.getAngle(); // direction robot should face
+    Rotation2d currentHeading = robotPose.getRotation(); // robot’s current yaw
+
+    double headingErrorDeg = Math.abs(desiredHeading.minus(currentHeading).getDegrees());
+    return headingErrorDeg <= HUB_AIMING_TOL_DEG;
+  }
+
   // returns true if the robot is on the alliance side of the hub, false otherwise
 
   private boolean isRobotOnAllianceSideOfHub(Pose2d robotPose, Pose2d hubPose) {
@@ -248,6 +266,8 @@ public class Game {
   public void periodic() {
     SmartDashboard.putNumber("Hub/Distance", getDistanceToHub());
     SmartDashboard.putNumber("Hub/Angle", getAngleToHub().getDegrees());
+    SmartDashboard.putBoolean("Hub/Aimed", isRobotAimed());
+    SmartDashboard.putBoolean("Hub/Ready", isRobotReadyAtHub());
   }
 
   /** Command to drive the robot through the trench. */

@@ -649,6 +649,11 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.drive(velocity);
   }
 
+  /** Set drive speeds to zero. */
+  public void stopDrive() {
+    swerveDrive.drive(new ChassisSpeeds());
+  }
+
   /**
    * Drive the robot given a chassis field oriented velocity.
    *

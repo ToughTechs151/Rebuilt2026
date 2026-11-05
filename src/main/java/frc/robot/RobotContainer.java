@@ -150,7 +150,7 @@ public class RobotContainer {
       new DeferredCommand(
               () ->
                   game.aimHubDriveCommand(() -> new ChassisSpeeds(0.0, 0.0, 0.0))
-                      .until(game::isRobotReadyAtHub)
+                      .until(game::isRobotAimed)
                       .withTimeout(1.0),
               Set.of(drivebase))
           .withName("Aim Hub");
@@ -179,10 +179,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("Intake", ballSubsystem.intakeCommand().withTimeout(10.0));
     NamedCommands.registerCommand("Align to Outpost", game.driveOutpostCommand());
     NamedCommands.registerCommand(
-        "AimHub", aimHub.andThen(Commands.runOnce(drivebase::lock, drivebase)));
+        "AimHub", aimHub.andThen(Commands.runOnce(drivebase::stopDrive, drivebase)));
 
-    NamedCommands.registerCommand(
-        "Lock Wheel", Commands.run(drivebase::lock, drivebase).repeatedly());
     // Setup the auto command chooser using the PathPlanner autos
     autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(autoChooser);
