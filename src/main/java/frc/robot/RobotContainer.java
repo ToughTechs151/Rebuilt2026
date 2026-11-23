@@ -98,6 +98,52 @@ public class RobotContainer {
   Command driveRobotOrientedAngularVelocity =
       drivebase.driveFieldOriented(driveRobotOriented).withName("Robot Oriented");
 
+  // ---- Set of commands to drive at slow speed for intake and aligning ----
+
+  // Commands to shift robot position at low speed using POV
+  SwerveInputStream slowForwardRobotOriented =
+      SwerveInputStream.of(
+              drivebase.getSwerveDrive(), () -> DriveConstants.SLOW_POV_SPEED, () -> 0.0)
+          .withControllerRotationAxis(
+              () -> -(operatorController.getRightX() * DriveConstants.SLOW_POV_TURNING))
+          .robotRelative(true)
+          .allianceRelativeControl(false);
+
+  Command slowForward =
+      drivebase.driveFieldOriented(slowForwardRobotOriented).withName("Slow Forward");
+
+  // Commands to shift robot position at low speed using POV
+  SwerveInputStream slowBackRobotOriented =
+      SwerveInputStream.of(
+              drivebase.getSwerveDrive(), () -> -1 * DriveConstants.SLOW_POV_SPEED, () -> 0.0)
+          .withControllerRotationAxis(() -> 0.0)
+          .robotRelative(true)
+          .allianceRelativeControl(false);
+
+  Command slowBack = drivebase.driveFieldOriented(slowBackRobotOriented).withName("Slow Back");
+
+  // Commands to shift robot position at low speed using POV
+  SwerveInputStream slowRightRobotOriented =
+      SwerveInputStream.of(
+              drivebase.getSwerveDrive(), () -> 0.0, () -> -1 * DriveConstants.SLOW_POV_SPEED)
+          .withControllerRotationAxis(() -> 0.0)
+          .robotRelative(true)
+          .allianceRelativeControl(false);
+
+  Command slowRight = drivebase.driveFieldOriented(slowRightRobotOriented).withName("Slow Right");
+
+  // Commands to shift robot position at low speed using POV
+  SwerveInputStream slowLeftRobotOriented =
+      SwerveInputStream.of(
+              drivebase.getSwerveDrive(), () -> 0.0, () -> DriveConstants.SLOW_POV_SPEED)
+          .withControllerRotationAxis(() -> 0.0)
+          .robotRelative(true)
+          .allianceRelativeControl(false);
+
+  Command slowLeft = drivebase.driveFieldOriented(slowLeftRobotOriented).withName("Slow Left");
+
+  // ---- Set of commands to drive at reduced speed for intake and aligning ----
+
   // Commands to shift robot position at low speed using POV
   SwerveInputStream shiftForwardRobotOriented =
       SwerveInputStream.of(drivebase.getSwerveDrive(), () -> DriveConstants.POV_SPEED, () -> 0.0)
@@ -159,7 +205,8 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Initialize the game helper class once all subsystems have been created so it can get
+    // Initialize the game helper class once all subsystems have been created so it
+    // can get
     // references to them.
     game.init();
 
@@ -199,31 +246,12 @@ public class RobotContainer {
 
     // ---------- Driver Controller ----------
 
-    // Change drive type from field oriented to robot oriented, which is similar to tank drive, when
-    // 'RB' is pressed on the driver's controller
-    driverController.rightBumper().whileTrue(driveRobotOrientedAngularVelocity);
-
-    // lock the wheels in a X pattern while left bumper is held
-    driverController
-        .leftBumper()
-        .whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-    // adjust the robot to the closest 46 degree angle
-    driverController.rightTrigger().whileTrue(diamondDrive);
-    // adjust the robot to face the hub while driving
-    driverController.leftTrigger().whileTrue(aimHubDrive);
-
-    // Drive to a launch position near the hub when the A button is pressed
-    driverController.a().whileTrue(game.driveHubCommand().withName("Drive to Hub"));
-    driverController.b().whileTrue(game.driveTrenchCommand().withName("Drive to Trench"));
-    driverController.x().whileTrue(game.driveBumpCommand().withName("Drive to Bump"));
-
-    // Drives robot oriented slowly at a set speed based on which of the pov buttons is pressed on
-    // the driver's controller
+    // Drives robot oriented slowly at a set speed based on which of the pov buttons
+    // is pressed on the driver's controller
     driverController.povUp().whileTrue(shiftForward);
     driverController.povDown().whileTrue(shiftBack);
     driverController.povRight().whileTrue(shiftRight);
     driverController.povLeft().whileTrue(shiftLeft);
-
     // Zero the gyro when 'start' is pressed on the driver's controller
     driverController
         .start()
@@ -232,19 +260,33 @@ public class RobotContainer {
     // ---------- Operator Controller ----------
     // Define operator commands and button mappings here
 
-    // While the left bumper on operator controller is held, intake Fuel
-    operatorController.leftBumper().whileTrue(ballSubsystem.intakeCommand().withName("Intake"));
+    // Drives robot oriented slowly at a set speed based on which of the pov buttons
+    // is pressed on the driver's controller
+    operatorController.povUp().whileTrue(slowForward);
+    operatorController.povDown().whileTrue(slowBack);
+    operatorController.povRight().whileTrue(slowRight);
+    operatorController.povLeft().whileTrue(slowLeft);
 
-    // While the right bumper on the operator controller is held, spin up for 1
-    // second, then launch fuel. When the button is released, stop.
-    operatorController.rightBumper().whileTrue(ballSubsystem.launchCommand(0).withName("Launch"));
-    // While the A button is held on the operator controller, eject fuel back out
+    // ---------- Either Controller ----------
+
+    // While the left bumper on either controller is held, intake Fuel
+    operatorController
+        .leftBumper()
+        .or(driverController.leftBumper())
+        .whileTrue(ballSubsystem.intakeCommand().withName("Intake"));
+
+    // While the right bumper on either controller is held, launch fuel.
+    operatorController
+        .rightBumper()
+        .or(driverController.rightBumper())
+        .whileTrue(ballSubsystem.launchCommand(0).withName("Launch"));
+
+    // While the A button is held on either controller, eject fuel back out
     // the intake
-    operatorController.a().whileTrue(ballSubsystem.ejectCommand().withName("Eject"));
-
-    operatorController.x().whileTrue(ballSubsystem.launchCommand(1).withName("Passing"));
-
-    operatorController.y().whileTrue(ballSubsystem.launchCommand(2).withName("Enemy Passing"));
+    operatorController
+        .a()
+        .or(driverController.a())
+        .whileTrue(ballSubsystem.ejectCommand().withName("Eject"));
   }
 
   /**

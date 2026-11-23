@@ -1,4 +1,9 @@
 {
+  "Keyboard 1 Settings": {
+    "window": {
+      "visible": true
+    }
+  },
   "keyboardJoysticks": [
     {
       "axisConfig": [
@@ -41,16 +46,17 @@
     },
     {
       "axisConfig": [
+        {},
+        {},
+        {},
+        {},
+        {},
         {
-          "decKey": 74,
-          "incKey": 76
-        },
-        {
-          "decKey": 73,
-          "incKey": 75
+          "decKey": 79,
+          "incKey": 85
         }
       ],
-      "axisCount": 2,
+      "axisCount": 6,
       "buttonCount": 4,
       "buttonKeys": [
         77,
@@ -58,7 +64,15 @@
         46,
         47
       ],
-      "povCount": 0
+      "povConfig": [
+        {
+          "key0": 73,
+          "key180": 75,
+          "key270": 74,
+          "key90": 76
+        }
+      ],
+      "povCount": 1
     },
     {
       "axisConfig": [

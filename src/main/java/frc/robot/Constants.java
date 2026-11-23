@@ -139,10 +139,16 @@ public final class Constants {
     public static final double POV_SPEED = 0.2;
 
     /** Turn scaling factor for POV forward command. */
-    public static final double POV_TURNING = 0.50;
+    public static final double POV_TURNING = 0.5;
+
+    /** Speed scaling factor for slow speed POV/directional drive commands. */
+    public static final double SLOW_POV_SPEED = 0.05;
+
+    /** Turn scaling factor for POV forward command. */
+    public static final double SLOW_POV_TURNING = 0.125;
 
     /** Enable/disable vision system for odometry correction. */
-    public static final boolean ENABLE_VISION = true;
+    public static final boolean ENABLE_VISION = false;
 
     /** Maximum distance to detect AprilTags in meters. */
     public static final double MAX_TAG_DISTANCE = 2.75; // meters
@@ -236,13 +242,13 @@ public final class Constants {
     public static final double EJECTING_INTAKE_VOLTAGE = -5.3;
     public static final double LAUNCH_SPINUP_THRESHOLD = 0.6;
     public static final double RATE_LIMIT = 999.0; // volts per second
-    public static final double ENABLE_LAUNCH_TABLE = 1;
+    public static final double ENABLE_LAUNCH_TABLE = 0;
     public static final LUT LAUNCH_TABLE = new LUT(new double[][] {{1.5, 2750}, {4.5, 4450}});
     public static final double PASSING_SPEED_RPM = 3500.0;
     public static final double OPPOSITE_PASSING_SPEED_RPM = 5500.0;
 
     // Constants tunable through TunableNumbers
-    public static final double LAUNCHER_SPEED_RPM = 3200.0;
+    public static final double LAUNCHER_SPEED_RPM = 2500.0;
     public static final double LAUNCHER_KP_VOLTS_PER_RPM = 0.00045;
     public static final double LAUNCHER_KD_VOLTS_PER_RPM_SEC = 0.0;
     public static final double LAUNCHER_KV_VOLTS_PER_RPM = 0.0021;
