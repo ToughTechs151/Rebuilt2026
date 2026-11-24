@@ -248,7 +248,7 @@ public final class Constants {
     public static final double OPPOSITE_PASSING_SPEED_RPM = 5500.0;
 
     // Constants tunable through TunableNumbers
-    public static final double LAUNCHER_SPEED_RPM = 2500.0;
+    public static final double LAUNCHER_SPEED_RPM = 2750.0;
     public static final double LAUNCHER_KP_VOLTS_PER_RPM = 0.00045;
     public static final double LAUNCHER_KD_VOLTS_PER_RPM_SEC = 0.0;
     public static final double LAUNCHER_KV_VOLTS_PER_RPM = 0.0021;
